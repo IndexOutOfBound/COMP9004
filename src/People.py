@@ -1,6 +1,7 @@
 import numpy as np
-class People(object):
-    def __init__(self, id, **kwargs):
+import threading
+class People(threading.Thread):
+    def __init__(self, *args):
         '''
         @param
             - age: how old a people is
@@ -9,12 +10,13 @@ class People(object):
             - metabolism: how much grain a people eats each time
             - vision: how many lands ahead a turtle can see
         '''
-        self.__id = id
-        self.__wealth = self.__init_wealth()
-        self.__metabolism = self.__init_metabolism(kwargs['maximum_metabolism'])
-        self.__age = 0
-        self.__life_expectancy = self.__init_life_expectancy(kwargs['maximum_life_expectancy'])
-        self.__vision = self.__init_vision(kwargs['maximum_vision'])
+        threading.Thread.__init__(self)
+        self.__id = args[0]
+        self.wealth = args[1]
+        self.age = args[2]
+        self.__metabolism = args[3]
+        self.__life_expectancy = args[4]
+        self.__vision = args[5]
 
     def __str__(self):
         return f"People[{self.__id}]--age:{self.__age}, wealth:{self.__wealth}, \
@@ -32,9 +34,6 @@ class People(object):
     def __init_vision(self, maximum_vision):
         return np.random.randint(1, maximum_vision+1)
 
-    def forward(self):
-        pass
-
     def data_dict(self):
         return {
             'id': self.__id,
@@ -43,14 +42,19 @@ class People(object):
             'vision': self.__vision,
         }
 
+    def run(self):
+        print('people run')
+
     @staticmethod
-    def generate_peoples(num, **kwargs):
+    def generate_peoples(num, world_size, **kwargs):
         ids = np.arange(num)
         ages = np.zeros(num, dtype=int)
         metabolism = np.random.randint(1, kwargs['maximum_metabolism'], size=num)
         life_expectancy = np.random.randint(1, kwargs['maximum_life_expectancy']+1, size=num)
         vision = np.random.randint(1, kwargs['maximum_vision']+1, size=num) 
         wealth = metabolism + np.random.randint(0, 50, size=num)
-        matrix = np.array((ids, wealth, ages, metabolism, life_expectancy, vision))
+        axis_x = np.random.randint(0, world_size[0], size=num)
+        axis_y = np.random.randint(0, world_size[1], size=num)
+        matrix = np.array((ids, wealth, ages, metabolism, life_expectancy, vision, axis_x, axis_y))
         return matrix.T
        
