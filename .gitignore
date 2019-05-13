@@ -1,1 +1,4 @@
 *.pyc
+graph/
+*.jpg
+*.csv
