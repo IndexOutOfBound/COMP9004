@@ -37,12 +37,15 @@ class World(object):
         This method will generate a matrix. each value will be the related land's capacity.
     '''
     def __setup_lands__capacity(self):
-        # world_capacity = self.WORLD_SIZE_X * self.WORLD_SIZE_Y
+        # generate best land
         best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
         land_value_range = np.zeros(self.WORLD_SIZE-best_land_number)
         flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY]*best_land_number)
         maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y)
         tmp = maximum_grains.copy()
+
+        # spread that grain around the window a little and put a little back
+        # into the patches that are the "best land" found above
         for _ in range(5):
             for i in range(self.WORLD_SIZE_X):
                 for j in range(self.WORLD_SIZE_Y):
@@ -145,10 +148,12 @@ class World(object):
     def step(self):
         location_index = {}
         max_wealth = 0
+        # each people decide direction
         for people in self.peoples.values():
             people.turn_towards_grain()
             location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
-            
+        
+        # each people move
         for people in self.peoples.values():
             people.wealth += self.grains_distribution[
                 people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)
@@ -163,6 +168,7 @@ class World(object):
         print('Start Simulation')
         lorenz_results = {}
         gini_results, rich, middle, poor= [], [], [], []
+
         while self.clock <= self.MAXIMUM_CLOCK:
             r, m, p = self.step()
             rich.append(r)

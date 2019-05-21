@@ -14,7 +14,6 @@ def load_config(id=None):
         cf.read("./default.conf")
     else:
         cf.read(f"../data/{id}/config.conf")
-        breakpoint()
     return cf
 
 
@@ -25,7 +24,7 @@ def load_netlogo_data(id):
         csv_reader = csv.reader(f)
         for row in csv_reader:
             gini.append(float(row[1]))
-    
+    # load number of each groups 
     with open(f"../data/{id}/people_num.csv") as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
@@ -37,17 +36,17 @@ def load_netlogo_data(id):
     
     
 def simulator(argv):
-    save_graph_flag = False
+    save_graph_flag = True
     compare = False
     conf = load_config()['SETTINGS']
 
     # read options from command line
     try:
-        opts, _ = getopt.getopt(argv, "hgc:i:", ["help", "graph", "clock", "id"])
+        opts, _ = getopt.getopt(argv, "hgc:i:", ["help", "Nograph", "clock", "id"])
     except getopt.GetoptError:
         print('-h --help \t help info')
         print('-c --clock [int]\t running times, default == 100')
-        print('-g --graph\t Generate graph results with this parameter')
+        print('-g --Nograph\t Do not generate graph results with this parameter')
         print('-i --id [int]\t Load a predefined configuration and compare' )
         sys.exit(2)
 
@@ -55,13 +54,13 @@ def simulator(argv):
         if opt in ('-h', '--help'):
             print('-h --help \t help info')
             print('-c --clock [int]\t running times, default == 100')
-            print('-g --graph \t Generate graph results with this parameter')
+            print('-g --graph \t Do not generate graph results with this parameter')
             print('-i --id [int]\t Load a predefined configuration and compare' )
             sys.exit()
         elif opt in ('-c', '--clock'):
             conf['MAXIMUM_CLOCK'] = arg
         elif opt in ('-g', '--graph'):
-            save_graph_flag = True
+            save_graph_flag = False
             folder = os.path.exists('./graph')
             if not folder:
                 os.makedirs('./graph')  
@@ -97,7 +96,7 @@ def simulator(argv):
         # generate Gini Index graph
         plt.plot(axis_x, gini_results)
         if compare:
-            plt.plot(axis_x, p_gini, '--') 
+            plt.plot(axis_x, p_gini, ':') 
         plt.ylim(0, 1)
         plt.xlabel('Time')
         plt.ylabel('Gini Index')
@@ -109,21 +108,21 @@ def simulator(argv):
         plt.plot(axis_x, middle, color='y')
         plt.plot(axis_x, poor, color='r')
         if compare:
-            plt.plot(axis_x, p_rich, 'b--')
-            plt.plot(axis_x, p_middle, 'y--') 
-            plt.plot(axis_x, p_poor, 'r--')
+            plt.plot(axis_x, p_rich, 'b:')
+            plt.plot(axis_x, p_middle, 'y:') 
+            plt.plot(axis_x, p_poor, 'r:')
         plt.xlabel('Time')
         plt.ylabel('Gini Index')
         plt.savefig('./graph/class_plot.png')
         plt.cla()
 
-        # generate Lorenz curve graph
-        for i in range(0, int(conf['MAXIMUM_CLOCK']),10):
-            x = np.arange(0, 100.0, 100.0/int(conf['NUM_PEOPLE']))
-            plt.plot(x, lorenz_result[i], color='red')
-            plt.plot(x, x, linestyle='--')
-            plt.savefig(f'./graph/lorenz_{i}.png')
-            plt.cla()
+        # # generate Lorenz curve graph
+        # for i in range(0, int(conf['MAXIMUM_CLOCK']),10):
+        #     x = np.arange(0, 100.0, 100.0/int(conf['NUM_PEOPLE']))
+        #     plt.plot(x, lorenz_result[i], color='red')
+        #     plt.plot(x, x, linestyle='--')
+        #     plt.savefig(f'./graph/lorenz_{i}.png')
+        #     plt.cla()
 
 
 if __name__ == "__main__":
