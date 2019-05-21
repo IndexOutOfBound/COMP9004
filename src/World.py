@@ -30,7 +30,7 @@ class World(object):
         # random ditribute people in the world
         self.peoples = self.__setup_people()
         # Initial lorenz and gini
-        self.lorenz_points, self.gini_index = self.update_lorenz_and_gini()
+        self.lorenz_points, self.gini_index = self.__update_lorenz_and_gini()
 
         
     '''
@@ -67,7 +67,7 @@ class World(object):
         matrix = np.array((ids, wealth, ages, metabolism, life_expectancy, vision, axis_x, axis_y))
         return matrix.T 
 
-    def update_lorenz_and_gini(self):
+    def __update_lorenz_and_gini(self):
         # sort wealth
         sorted_wealth = sorted(self.peoples.items(), key= lambda x:x[1].wealth)
         total_wealth = 0
@@ -86,33 +86,63 @@ class World(object):
         gini_index = (gini_index_reserve / self.NUM_PEOPLE) / 0.5
         return lorenz_points, gini_index
 
-    def grain_grow(self):
+    def __grain_grow(self):
         if self.clock % self.GRAIN_GROWTH_INTERVAL == 0:
             self.grains_distribution += self.NUM_GRAIN_GROWN
             self.grains_distribution = np.minimum(self.grains_distribution, self.maximum_grains)
 
+    '''
+        Set the class of people
+        if a people has less than a third the wealth of the richest people, group it the poor. 
+        If between one and two thirds, group it the middle.  
+        If over two thirds, group it the rich.
+    '''
+    def __group_people(self, max_wealth):
+        r, m, p = 0, 0, 0
+        for people in self.peoples.values():
+            if people.wealth <= max_wealth / 3.0:
+                p += 1
+            elif people.wealth <= max_wealth * 2.0 / 3.0:
+                m += 1
+            else:
+                r += 1
+        return r, m, p
+
     def step(self):
         location_index = {}
+        max_wealth = 0
         for people in self.peoples.values():
             people.turn_towards_grain()
             location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
             
         for people in self.peoples.values():
-            people.wealth += self.grains_distribution[people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)]
+            people.wealth += self.grains_distribution[
+                people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)
+                ]
             people.move_eat_age_die()
+            max_wealth = max(people.wealth, max_wealth)
 
-        self.grain_grow()
+        self.__grain_grow()
+        return self.__group_people(max_wealth)
         
     def simulate(self):
         print('Start Simulation')
         lorenz_results = {}
         gini_results = []
+        rich, middle, poor= [], [], []
         while self.clock <= self.MAXIMUM_CLOCK:
-            self.step()
-            lorenz_points, gini_index = self.update_lorenz_and_gini()
+            r, m, p = self.step()
+            rich.append(r)
+            middle.append(m)
+            poor.append(p)
+            # records lorenz & gini index
+            lorenz_points, gini_index = self.__update_lorenz_and_gini()
             lorenz_results[self.clock] = lorenz_points
             gini_results.append(gini_index)
+
+            # records num of each group
+            # r, m, p = self.__group_people()
             self.clock += 1
         print('Simulation Finished')
-        return lorenz_results, gini_results
+        return lorenz_results, gini_results, rich, middle, poor
 
