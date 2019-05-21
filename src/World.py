@@ -4,18 +4,23 @@ import queue
 from People import People
 
 class World(object):
-    def __init__(self, **kwargs):
-        # TODO: set up a config file or input via command
-        # Set up global parmeters
-        self.land_maximum_capacity = kwargs['land_maximum_capacity']    
-        self.world_size = kwargs['world_size']      
-        self.population = kwargs['population']  
-        self.percent_best_land = kwargs['percent_best_land']  
-        self.num_grain_grown = kwargs['num_grain_grown'] 
-        self.grain_growth_interval = kwargs['grain_growth_interval']
-        self.maximum_clock = kwargs['maximum_clock']
-        self.people_config = kwargs['people_configuration']
+    def __init__(self, conf):
+        # load global parmeters
+        self.MAXIMUM_CLOCK = int(conf['MAXIMUM_CLOCK'])
+        self.WORLD_SIZE_X = int(conf['WORLD_SIZE_X'])
+        self.WORLD_SIZE_Y = int(conf['WORLD_SIZE_Y'])
+        self.WORLD_SIZE = self.WORLD_SIZE_X * self.WORLD_SIZE_Y
+        self.LAND_MAXIMUM_CAPACITY = int(conf['LAND_MAXIMUM_CAPACITY'])
+        self.NUM_PEOPLE = int(conf['NUM_PEOPLE'])
+        self.MAX_VISION =int(conf['MAX_VISION']) 
+        self.METABOLISM_MAX = int(conf['METABOLISM_MAX'])
+        self.LIFE_EXPECTANCY_MIN = int(conf['LIFE_EXPECTANCY_MIN'])
+        self.LIFE_EXPECTANCY_MAX = int(conf['LIFE_EXPECTANCY_MAX'])
+        self.PERSENT_BEST_LAND = float(conf['PERSENT_BEST_LAND']) / 100
+        self.GRAIN_GROWTH_INTERVAL = int(conf['GRAIN_GROWTH_INTERVAL'])
+        self.NUM_GRAIN_GROWN = int(conf['NUM_GRAIN_GROWN'])
         self.clock = 0
+
         # set up various parts of the world
         # generate the worlds
         # random define each land's maximum capacity
@@ -32,11 +37,11 @@ class World(object):
         This method will generate a matrix. each value will be the related land's capacity.
     '''
     def __setup_lands__capacity(self):
-        world_capacity = self.world_size[0] * self.world_size[1]
-        best_land_number =  int(world_capacity * self.percent_best_land)
-        land_value_range = np.random.randint(0, self.land_maximum_capacity, size=world_capacity-best_land_number)
-        flatten_wolrd = np.append(land_value_range, [self.land_maximum_capacity]*best_land_number)
-        maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.world_size)
+        # world_capacity = self.WORLD_SIZE_X * self.WORLD_SIZE_Y
+        best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
+        land_value_range = np.random.randint(0, self.LAND_MAXIMUM_CAPACITY, size=self.WORLD_SIZE-best_land_number)
+        flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY]*best_land_number)
+        maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y)
         return maximum_grains
 
     '''
@@ -51,14 +56,14 @@ class World(object):
         return peoples
 
     def __generate_peoples(self):
-        ids = np.arange(self.population)
-        ages = np.zeros(self.population, dtype=int)
-        metabolism = np.random.randint(1, self.people_config['max_metabolism'], size=self.population)
-        life_expectancy = np.random.randint(self.people_config['min_life_expectancy'], self.people_config['max_life_expectancy']+1, size=self.population)
-        vision = np.random.randint(1, self.people_config['max_vision']+1, size=self.population) 
-        wealth = metabolism + np.random.randint(0, 50, size=self.population)
-        axis_x = np.random.randint(0, self.world_size[0], size=self.population)
-        axis_y = np.random.randint(0, self.world_size[1], size=self.population)
+        ids = np.arange(self.NUM_PEOPLE)
+        ages = np.zeros(self.NUM_PEOPLE, dtype=int)
+        metabolism = np.random.randint(1, self.METABOLISM_MAX, size=self.NUM_PEOPLE)
+        life_expectancy = np.random.randint(self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE)
+        vision = np.random.randint(1, self.MAX_VISION+1, size=self.NUM_PEOPLE) 
+        wealth = metabolism + np.random.randint(0, 50, size=self.NUM_PEOPLE)
+        axis_x = np.random.randint(0, self.WORLD_SIZE_X, size=self.NUM_PEOPLE)
+        axis_y = np.random.randint(0, self.WORLD_SIZE_Y, size=self.NUM_PEOPLE)
         matrix = np.array((ids, wealth, ages, metabolism, life_expectancy, vision, axis_x, axis_y))
         return matrix.T 
 
@@ -66,7 +71,7 @@ class World(object):
         # sort wealth
         sorted_wealth = sorted(self.peoples.items(), key= lambda x:x[1].wealth)
         total_wealth = 0
-        for id in range(self.population):
+        for id in range(self.NUM_PEOPLE):
             total_wealth += self.peoples[id].wealth
 
         wealth_sum_so_far = 0
@@ -75,25 +80,22 @@ class World(object):
         for i, people in enumerate(sorted_wealth):
             wealth_sum_so_far += people[1].wealth
             lorenz_points.append((wealth_sum_so_far/total_wealth)*100)
-            gini_index_reserve += (i+1)/self.population - wealth_sum_so_far/total_wealth
+            gini_index_reserve += (i+1)/self.NUM_PEOPLE - wealth_sum_so_far/total_wealth
 
         # gini_index = gini_index_reserve/(gini_index_reserve + np.sum(lorenz_points))
-        gini_index = (gini_index_reserve / self.population) / 0.5
+        gini_index = (gini_index_reserve / self.NUM_PEOPLE) / 0.5
         return lorenz_points, gini_index
 
     def grain_grow(self):
-        if self.clock % self.grain_growth_interval == 0:
-            self.grains_distribution += self.num_grain_grown
+        if self.clock % self.GRAIN_GROWTH_INTERVAL == 0:
+            self.grains_distribution += self.NUM_GRAIN_GROWN
             self.grains_distribution = np.minimum(self.grains_distribution, self.maximum_grains)
 
     def step(self):
         location_index = {}
         for people in self.peoples.values():
             people.turn_towards_grain()
-            # breakpoint()
             location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
-            # breakpoint()
-
             
         for people in self.peoples.values():
             people.wealth += self.grains_distribution[people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)]
@@ -105,7 +107,7 @@ class World(object):
         print('Start Simulation')
         lorenz_results = {}
         gini_results = []
-        while self.clock <= self.maximum_clock:
+        while self.clock <= self.MAXIMUM_CLOCK:
             self.step()
             lorenz_points, gini_index = self.update_lorenz_and_gini()
             lorenz_results[self.clock] = lorenz_points
