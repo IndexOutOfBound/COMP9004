@@ -39,15 +39,33 @@ class World(object):
     def __setup_lands__capacity(self):
         # world_capacity = self.WORLD_SIZE_X * self.WORLD_SIZE_Y
         best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
-        land_value_range = np.random.randint(0, self.LAND_MAXIMUM_CAPACITY, size=self.WORLD_SIZE-best_land_number)
+        land_value_range = np.zeros(self.WORLD_SIZE-best_land_number)
         flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY]*best_land_number)
         maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y)
-        return maximum_grains
+        tmp = maximum_grains.copy()
+        for _ in range(5):
+            for i in range(self.WORLD_SIZE_X):
+                for j in range(self.WORLD_SIZE_Y):
+                    if maximum_grains[i,j] != 0:
+                        tmp[i, j] = maximum_grains[i, j]
+                    keep_share = tmp[i, j] * 0.75
+                    tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
+                    tmp[i, j] = keep_share
+        
+        for _ in range(10):
+            for i in range(self.WORLD_SIZE_X):
+                for j in range(self.WORLD_SIZE_Y):
+                    keep_share = tmp[i, j] * 0.75
+                    tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
+                    tmp[i, j] = keep_share
+        
+        return np.floor(tmp)
+    
 
     '''
         generate N people
     '''
-    def __setup_people(self, ):
+    def __setup_people(self):
         peoples = {}
         # peoples_matrix: [[id, wealth, age, metabolism, life_expectancy, vision, axis_x, axis_y],]
         peoples_matrix = self.__generate_peoples()
@@ -55,11 +73,16 @@ class World(object):
             peoples[i] = People(self, *peoples_matrix[i])
         return peoples
 
+    '''
+        set up initial values for the people variables 
+    '''
     def __generate_peoples(self):
         ids = np.arange(self.NUM_PEOPLE)
         ages = np.zeros(self.NUM_PEOPLE, dtype=int)
         metabolism = np.random.randint(1, self.METABOLISM_MAX, size=self.NUM_PEOPLE)
         life_expectancy = np.random.randint(self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE)
+        for i in ids:
+            ages[i] += np.random.randint(life_expectancy[i])
         vision = np.random.randint(1, self.MAX_VISION+1, size=self.NUM_PEOPLE) 
         wealth = metabolism + np.random.randint(0, 50, size=self.NUM_PEOPLE)
         axis_x = np.random.randint(0, self.WORLD_SIZE_X, size=self.NUM_PEOPLE)
@@ -67,6 +90,10 @@ class World(object):
         matrix = np.array((ids, wealth, ages, metabolism, life_expectancy, vision, axis_x, axis_y))
         return matrix.T 
 
+    '''
+        this procedure recomputes the value of gini-index-reserve
+        and the points in lorenz-points for the Lorenz and Gini-Index plots
+    '''
     def __update_lorenz_and_gini(self):
         # sort wealth
         sorted_wealth = sorted(self.peoples.items(), key= lambda x:x[1].wealth)
@@ -85,7 +112,11 @@ class World(object):
         # gini_index = gini_index_reserve/(gini_index_reserve + np.sum(lorenz_points))
         gini_index = (gini_index_reserve / self.NUM_PEOPLE) / 0.5
         return lorenz_points, gini_index
-
+    
+    '''
+        patch procedure, if a patch does not have it's maximum amount of grain, add
+        num-grain-grown to its grain amount
+    '''
     def __grain_grow(self):
         if self.clock % self.GRAIN_GROWTH_INTERVAL == 0:
             self.grains_distribution += self.NUM_GRAIN_GROWN
@@ -108,6 +139,9 @@ class World(object):
                 r += 1
         return r, m, p
 
+    '''
+        The procedure will hapen in one clock
+    '''
     def step(self):
         location_index = {}
         max_wealth = 0
@@ -128,8 +162,7 @@ class World(object):
     def simulate(self):
         print('Start Simulation')
         lorenz_results = {}
-        gini_results = []
-        rich, middle, poor= [], [], []
+        gini_results, rich, middle, poor= [], [], [], []
         while self.clock <= self.MAXIMUM_CLOCK:
             r, m, p = self.step()
             rich.append(r)
@@ -140,8 +173,6 @@ class World(object):
             lorenz_results[self.clock] = lorenz_points
             gini_results.append(gini_index)
 
-            # records num of each group
-            # r, m, p = self.__group_people()
             self.clock += 1
         print('Simulation Finished')
         return lorenz_results, gini_results, rich, middle, poor
