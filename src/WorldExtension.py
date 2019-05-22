@@ -3,7 +3,7 @@ import threading
 import queue
 from People import People
 
-class World(object):
+class WorldExtension(object):
 
 
     def __init__(self, world):
@@ -54,17 +54,37 @@ class World(object):
 
 
     def __setup_lands__capacity(self):
-        # world_capacity = self.WORLD_SIZE_X * self.WORLD_SIZE_Y
-        best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
-        land_value_range = np.random.randint(0, self.LAND_MAXIMUM_CAPACITY, size=self.WORLD_SIZE-best_land_number)
-        flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY]*best_land_number)
+        # generate best land
+        best_land_number = int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
+        land_value_range = np.zeros(self.WORLD_SIZE - best_land_number)
+        flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY] * best_land_number)
         maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y)
-        return maximum_grains
+        tmp = maximum_grains.copy()
+
+        # spread that grain around the window a little and put a little back
+        # into the patches that are the "best land" found above
+        for _ in range(5):
+            for i in range(self.WORLD_SIZE_X):
+                for j in range(self.WORLD_SIZE_Y):
+                    if maximum_grains[i, j] != 0:
+                        tmp[i, j] = maximum_grains[i, j]
+                    keep_share = tmp[i, j] * 0.75
+                    tmp[i - 1:i + 2, j - 1:j + 2] += tmp[i, j] / 32.0
+                    tmp[i, j] = keep_share
+
+        for _ in range(10):
+            for i in range(self.WORLD_SIZE_X):
+                for j in range(self.WORLD_SIZE_Y):
+                    keep_share = tmp[i, j] * 0.75
+                    tmp[i - 1:i + 2, j - 1:j + 2] += tmp[i, j] / 32.0
+                    tmp[i, j] = keep_share
+
+        return np.floor(tmp)
 
     '''
         generate N people
     '''
-    def __setup_people(self, ):
+    def __setup_people(self):
         peoples = {}
         # peoples_matrix: [[id, wealth, age, metabolism, life_expectancy, vision, axis_x, axis_y],]
         peoples_matrix = self.__generate_peoples()
