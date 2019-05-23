@@ -1,0 +1,91 @@
+\begin{thebibliography}{10}
+
+\bibitem{garcia1992main}
+H.~Garcia-Molina and K.~Salem, ``Main memory database systems: An overview,''
+  {\em IEEE Transactions on Knowledge \& Data Engineering}, no.~6,
+  pp.~509--516, 1992.
+
+\bibitem{gray1992transaction}
+J.~Gray and A.~Reuter, {\em Transaction processing: concepts and techniques}.
+\newblock Elsevier, 1992.
+
+\bibitem{adya2000generalized}
+A.~Adya, B.~Liskov, and P.~O'Neil, ``Generalized isolation level definitions,''
+  in {\em Proceedings of 16th International Conference on Data Engineering
+  (Cat. No. 00CB37073)}, pp.~67--78, IEEE, 2000.
+
+\bibitem{berenson1995critique}
+H.~Berenson, P.~Bernstein, J.~Gray, J.~Melton, E.~O'Neil, and P.~O'Neil, ``A
+  critique of ansi sql isolation levels,'' in {\em ACM SIGMOD Record}, vol.~24,
+  pp.~1--10, ACM, 1995.
+
+\bibitem{yuan2016bcc}
+Y.~Yuan, K.~Wang, R.~Lee, X.~Ding, J.~Xing, S.~Blanas, and X.~Zhang, ``Bcc:
+  reducing false aborts in optimistic concurrency control with low cost for
+  in-memory databases,'' {\em Proceedings of the VLDB Endowment}, vol.~9,
+  no.~6, pp.~504--515, 2016.
+
+\bibitem{neumann2015fast}
+T.~Neumann, T.~M{\"u}hlbauer, and A.~Kemper, ``Fast serializable multi-version
+  concurrency control for main-memory database systems,'' in {\em Proceedings
+  of the 2015 ACM SIGMOD International Conference on Management of Data},
+  pp.~677--689, ACM, 2015.
+
+\bibitem{yu2016tictoc}
+X.~Yu, A.~Pavlo, D.~Sanchez, and S.~Devadas, ``Tictoc: Time traveling
+  optimistic concurrency control,'' in {\em Proceedings of the 2016
+  International Conference on Management of Data}, pp.~1629--1642, ACM, 2016.
+
+\bibitem{Bernstein1981}
+P.~A. Bernstein and N.~Goodman, ``{Concurrency Control in Distributed Database
+  Systems},'' {\em {ACM} Computing Surveys}, vol.~13, pp.~185--221, jun 1981.
+
+\bibitem{Bernstein1983}
+P.~A. Bernstein and N.~Goodman, ``Multiversion concurrency control---theory and
+  algorithms,'' {\em {ACM} Transactions on Database Systems}, vol.~8,
+  pp.~465--483, dec 1983.
+
+\bibitem{li1987performance}
+V.~O. Li, ``Performance models of timestamp-ordering concurrency control
+  algorithms in distributed databases,'' {\em IEEE Transactions on Computers},
+  vol.~100, no.~9, pp.~1041--1051, 1987.
+
+\bibitem{bernstein1980timestamp}
+P.~A. Bernstein and N.~Goodman, ``Timestamp-based algorithms for concurrency
+  control in distributed database systems,'' in {\em Proceedings of the sixth
+  international conference on Very Large Data Bases-Volume 6}, pp.~285--300,
+  VLDB Endowment, 1980.
+
+\bibitem{corbett2013spanner}
+J.~C. Corbett, J.~Dean, M.~Epstein, A.~Fikes, C.~Frost, J.~J. Furman,
+  S.~Ghemawat, A.~Gubarev, C.~Heiser, P.~Hochschild, {\em et~al.}, ``Spanner:
+  Google’s globally distributed database,'' {\em ACM Transactions on Computer
+  Systems (TOCS)}, vol.~31, no.~3, p.~8, 2013.
+
+\bibitem{harding2017evaluation}
+R.~Harding, D.~Van~Aken, A.~Pavlo, and M.~Stonebraker, ``An evaluation of
+  distributed concurrency control,'' {\em Proceedings of the VLDB Endowment},
+  vol.~10, no.~5, pp.~553--564, 2017.
+
+\bibitem{reed1978naming}
+D.~P. Reed, {\em Naming and synchronization in a decentralized computer
+  system.}
+\newblock PhD thesis, Massachusetts Institute of Technology, 1978.
+
+\bibitem{wu2017empirical}
+Y.~Wu, J.~Arulraj, J.~Lin, R.~Xian, and A.~Pavlo, ``An empirical evaluation of
+  in-memory multi-version concurrency control,'' {\em Proceedings of the VLDB
+  Endowment}, vol.~10, no.~7, pp.~781--792, 2017.
+
+\bibitem{xia2011silo}
+W.~Xia, H.~Jiang, D.~Feng, and Y.~Hua, ``Silo: A similarity-locality based
+  near-exact deduplication scheme with low ram overhead and high throughput.,''
+  in {\em USENIX annual technical conference}, pp.~26--30, 2011.
+
+\bibitem{diaconu2013hekaton}
+C.~Diaconu, C.~Freedman, E.~Ismert, P.-A. Larson, P.~Mittal, R.~Stonecipher,
+  N.~Verma, and M.~Zwilling, ``Hekaton: Sql server's memory-optimized oltp
+  engine,'' in {\em Proceedings of the 2013 ACM SIGMOD International Conference
+  on Management of Data}, pp.~1243--1254, ACM, 2013.
+
+\end{thebibliography}

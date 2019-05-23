@@ -1,0 +1,16 @@
+% Encoding: UTF-8
+
+@Article{Bernstein1983,
+  author    = {Philip A. Bernstein and Nathan Goodman},
+  title     = {Multiversion concurrency control---theory and algorithms},
+  journal   = {{ACM} Transactions on Database Systems},
+  year      = {1983},
+  volume    = {8},
+  number    = {4},
+  pages     = {465--483},
+  month     = {dec},
+  doi       = {10.1145/319996.319998},
+  publisher = {Association for Computing Machinery ({ACM})},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
