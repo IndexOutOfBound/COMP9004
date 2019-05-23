@@ -54,6 +54,35 @@
 \setlength\parindent{0pt}
 \usepackage{subcaption}
 
+\usepackage{etoolbox,refcount}
+\usepackage{multicol}
+
+\newcounter{countitems}
+\newcounter{nextitemizecount}
+\newcommand{\setupcountitems}{%
+	\stepcounter{nextitemizecount}%
+	\setcounter{countitems}{0}%
+	\preto\item{\stepcounter{countitems}}%
+}
+\makeatletter
+\newcommand{\computecountitems}{%
+	\edef\@currentlabel{\number\c@countitems}%
+	\label{countitems@\number\numexpr\value{nextitemizecount}-1\relax}%
+}
+\newcommand{\nextitemizecount}{%
+	\getrefnumber{countitems@\number\c@nextitemizecount}%
+}
+\newcommand{\previtemizecount}{%
+	\getrefnumber{countitems@\number\numexpr\value{nextitemizecount}-1\relax}%
+}
+\makeatother    
+\newenvironment{AutoMultiColItemize}{%
+	\ifnumcomp{\nextitemizecount}{>}{3}{\begin{multicols}{2}}{}%
+		\setupcountitems\begin{itemize}}%
+		{\end{itemize}%
+		\unskip\computecountitems\ifnumcomp{\previtemizecount}{>}{3}{\end{multicols}}{}}
+
+
 \bibliographystyle{ieeetr}  
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -142,11 +171,49 @@
 
 
 \section{Background}
-Wealth is always a  trade. Wealth distribution becomes an extremely hot topic for a long time, which contains two directions. The first direction focuses on how to increase the wealth gap between the poor and the rich. The second direction mainly ana how to 
+Wealth is always a  trade. Wealth distribution becomes an extremely hot topic for a long time, which contains two directions. The first direction focuses on how to increase the wealth gap between the poor and the rich. The second direction mainly and how to balance the wealth distribution. Wealth distribution is a giant and complex system in real world as there are uncountable factors to contribute variations. In our project, we aim to simulate a simplified wealth distribution system comparing to real world.\\
+
+There are multiple reasons and motivations for us to analyze this topic. Firstly, it relates to our daily life. The more we know about the wealth, the better we could manipulate it such as daily usage or investment. In our model, people are divided into three classes, the poor, the middle and the rich. If we can summarized something helpful. It may contribute to others for further decision in the future, which is our motivation as well.\\
+
+In our project, we aim to accomplish two part. The first part concentrates on replicating the original model provided by NetLogo. The basic attributes that contribute to wealth distribution listed blow.
+  \begin{AutoMultiColItemize}
+	\item num of people
+	\item max vision
+	\item max of metabolism
+	\item min of life expectancy
+	\item max of life expectancy
+	\item percentage of best land
+\end{AutoMultiColItemize}
+This model is much simpler than real world model but the dialectical law of the development is the same, which states that gradually a small part of people possess majority of wealth while the whole system tends to be stable. However, it's still a complex system as a set of things work together as parts of a mechanism or an interconnecting network. The whole system consists of grain and people. People collect grains and compete with others.\\
+
+
+The second part focuses on extensions. We add multiple variables and try to impact the wealth distribution.
+   \begin{AutoMultiColItemize}
+ 	\item Heritage inheritance
+ 	\item Birth rate
+ 	\item Season
+ 	\item Reclamation
+ \end{AutoMultiColItemize}
+Further more, we are interested in finding a solution to reduce the wealth distribution.
 \section{Design}
 \subsection{Original Model}
-\subsection{Extensions}
+The first task to rebuild original model is the whole world initialization, which contains grain and people initialization based on specific configuration. We assume that the whole world is a 2-dimension matrix. There are several properties for every single person, which are the same as model in NetLogo.
+   \begin{AutoMultiColItemize}
+   	\item ID
+   	\item Age
+	\item Vision
+	\item Metabolism
+	\item Life expectancy
+	\item Position
+\end{AutoMultiColItemize}
 
+\subsection{Extensions}
+\begin{enumerate}
+	\item Heritage inheritance
+	\item Birth rate
+	\item Season
+	\item Reclamation
+\end{enumerate}
 \section{Results}
 \section{Discussion}
 
