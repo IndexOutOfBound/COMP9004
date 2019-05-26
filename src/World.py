@@ -47,23 +47,61 @@ class World(object):
         # spread that grain around the window a little and put a little back
         # into the patches that are the "best land" found above
         for _ in range(5):
-            for i in range(self.WORLD_SIZE_X):
-                for j in range(self.WORLD_SIZE_Y):
-                    if maximum_grains[i,j] != 0:
-                        tmp[i, j] = maximum_grains[i, j]
-                    keep_share = tmp[i, j] * 0.75
-                    tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
-                    tmp[i, j] = keep_share
+            tmp = np.maximum(tmp, maximum_grains)
+            tmp = self.__diffuse(tmp, 0.25)
+            # for i in range(self.WORLD_SIZE_X):
+            #     for j in range(self.WORLD_SIZE_Y):
+            #         if maximum_grains[i,j] != 0:
+            #             tmp[i, j] = maximum_grains[i, j]
+            #         keep_share = tmp[i, j] * 0.75
+            #         tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
+            #         tmp[i, j] = keep_share
         
         for _ in range(10):
-            for i in range(self.WORLD_SIZE_X):
-                for j in range(self.WORLD_SIZE_Y):
-                    keep_share = tmp[i, j] * 0.75
-                    tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
-                    tmp[i, j] = keep_share
-        
+            tmp = self.__diffuse(tmp, 0.25)
+            # for i in range(self.WORLD_SIZE_X):
+            #     for j in range(self.WORLD_SIZE_Y):
+            #         keep_share = tmp[i, j] * 0.75
+            #         tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
+            #         tmp[i, j] = keep_share
         return np.floor(tmp)
-    
+
+    def __diffuse(self, matrix, index):
+        matrix_1, matrix_2, matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_5, matrix_6, matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
+        # matrix move up: the first row move to the last row
+        matrix_1[:-1] = matrix[1:]
+        matrix_1[-1] = matrix[0]
+
+        # matrix move down: the last row move to the first row
+        matrix_2[0] = matrix[-1]
+        matrix_2[1:] = matrix[:-1]
+
+        # matrix move left: the first column move to the last col
+        matrix_3[:, :-1] = matrix[:, 1:]
+        matrix_3[:, -1] = matrix[:, 0]
+
+        # matrix move right : the last col move to the first col
+        matrix_4[:, 0] = matrix[:, -1]
+        matrix_4[:, 1:] = matrix[:, :-1]
+
+        # matrix move right and down
+        matrix_5[0] = matrix_4[-1]
+        matrix_5[1:] = matrix_4[:-1]
+
+        # matrix move right and up
+        matrix_6[-1] = matrix_4[0]
+        matrix_6[:-1] = matrix_4[1:]
+
+        # matrix move left and down
+        matrix_7[0] = matrix_3[-1]
+        matrix_7[1:] = matrix_3[:-1]
+
+        # matrix move left and up
+        matrix_8[-1] = matrix_3[0]
+        matrix_8[:-1] = matrix_3[1:] 
+
+        return matrix * (1-index) + (matrix_1 + matrix_2 + matrix_3 + matrix_4)*index/8.0
 
     '''
         generate N people
