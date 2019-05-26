@@ -21,7 +21,7 @@ class People(object):
         self.__vision = args[5]
         self.axis_x = args[6]
         self.axis_y = args[7]
-        self.best_direction = 0
+        self.best_direction = np.random.randint(0, 4)
 
     def turn_towards_grain(self):
         # determin move direction
@@ -76,14 +76,15 @@ class People(object):
         
         # eat
         self.wealth -= self.__metabolism
+        # age
         self.age += 1
 
-        if self.wealth < 0 or self.age > self.__life_expectancy:
+        if self.wealth < 0 or self.age >= self.__life_expectancy:
             self.reborn()
 
     def reborn(self):
         self.age = 0
-        self.__metabolism = np.random.randint(1, self.world.METABOLISM_MAX)
+        self.__metabolism = np.random.randint(1, self.world.METABOLISM_MAX+1)
         self.__life_expectancy = np.random.randint(self.world.LIFE_EXPECTANCY_MIN, self.world.LIFE_EXPECTANCY_MAX+1)
         self.__vision = np.random.randint(1, self.world.MAX_VISION+1) 
         self.wealth = self.__metabolism + np.random.randint(0, 50)

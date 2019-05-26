@@ -16,7 +16,7 @@ class World(object):
         self.METABOLISM_MAX = int(conf['METABOLISM_MAX'])
         self.LIFE_EXPECTANCY_MIN = int(conf['LIFE_EXPECTANCY_MIN'])
         self.LIFE_EXPECTANCY_MAX = int(conf['LIFE_EXPECTANCY_MAX'])
-        self.PERSENT_BEST_LAND = float(conf['PERSENT_BEST_LAND']) / 100
+        self.PERSENT_BEST_LAND = float(conf['PERSENT_BEST_LAND']) / 100.0
         self.GRAIN_GROWTH_INTERVAL = int(conf['GRAIN_GROWTH_INTERVAL'])
         self.NUM_GRAIN_GROWN = int(conf['NUM_GRAIN_GROWN'])
         self.clock = 0
@@ -82,7 +82,7 @@ class World(object):
     def __generate_peoples(self):
         ids = np.arange(self.NUM_PEOPLE)
         ages = np.zeros(self.NUM_PEOPLE, dtype=int)
-        metabolism = np.random.randint(1, self.METABOLISM_MAX, size=self.NUM_PEOPLE)
+        metabolism = np.random.randint(1, self.METABOLISM_MAX+1, size=self.NUM_PEOPLE)
         life_expectancy = np.random.randint(self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE)
         for i in ids:
             ages[i] += np.random.randint(life_expectancy[i])
@@ -153,11 +153,10 @@ class World(object):
             people.turn_towards_grain()
             location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
         
-        # each people move
+        # each people step
         for people in self.peoples.values():
-            people.wealth += self.grains_distribution[
-                people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)
-                ]
+            # harvest
+            people.wealth += float(self.grains_distribution[people.axis_x, people.axis_y]) / location_index[(people.axis_x, people.axis_y)]
             people.move_eat_age_die()
             max_wealth = max(people.wealth, max_wealth)
 
