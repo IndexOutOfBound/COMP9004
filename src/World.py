@@ -19,11 +19,11 @@ class World(object):
         self.PERSENT_BEST_LAND = float(conf['PERSENT_BEST_LAND']) / 100.0
         self.GRAIN_GROWTH_INTERVAL = int(conf['GRAIN_GROWTH_INTERVAL'])
         self.NUM_GRAIN_GROWN = int(conf['NUM_GRAIN_GROWN'])
+
+        # initial clock
         self.clock = 0
 
-        # set up various parts of the world
-        # generate the worlds
-        # random define each land's maximum capacity
+        # generate the world
         self.maximum_grains = self.__setup_lands__capacity()
         # set up the initial grains distribution eaqual to maximum
         self.grains_distribution = self.maximum_grains.copy()
@@ -31,7 +31,6 @@ class World(object):
         self.peoples = self.__setup_people()
         # Initial lorenz and gini
         self.lorenz_points, self.gini_index = self.__update_lorenz_and_gini()
-
         
     '''
         This method will generate a matrix. each value will be the related land's capacity.
@@ -41,34 +40,27 @@ class World(object):
         best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
         land_value_range = np.zeros(self.WORLD_SIZE-best_land_number)
         flatten_wolrd = np.append(land_value_range, [self.LAND_MAXIMUM_CAPACITY]*best_land_number)
-        maximum_grains = np.random.permutation(flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y)
+        maximum_grains = np.random.permutation(
+            flatten_wolrd).reshape(self.WORLD_SIZE_X, self.WORLD_SIZE_Y
+            )
         tmp = maximum_grains.copy()
-
         # spread that grain around the window a little and put a little back
         # into the patches that are the "best land" found above
         for _ in range(5):
             tmp = np.maximum(tmp, maximum_grains)
             tmp = self.__diffuse(tmp, 0.25)
-            # for i in range(self.WORLD_SIZE_X):
-            #     for j in range(self.WORLD_SIZE_Y):
-            #         if maximum_grains[i,j] != 0:
-            #             tmp[i, j] = maximum_grains[i, j]
-            #         keep_share = tmp[i, j] * 0.75
-            #         tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
-            #         tmp[i, j] = keep_share
         
         for _ in range(10):
             tmp = self.__diffuse(tmp, 0.25)
-            # for i in range(self.WORLD_SIZE_X):
-            #     for j in range(self.WORLD_SIZE_Y):
-            #         keep_share = tmp[i, j] * 0.75
-            #         tmp[i-1:i+2, j-1:j+2] += tmp[i, j] / 32.0
-            #         tmp[i, j] = keep_share
+
         return np.floor(tmp)
 
     def __diffuse(self, matrix, index):
-        matrix_1, matrix_2, matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
-        matrix_5, matrix_6, matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_1, matrix_2 = np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_5, matrix_6 = np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape)
+        
         # matrix move up: the first row move to the last row
         matrix_1[:-1] = matrix[1:]
         matrix_1[-1] = matrix[0]
@@ -101,8 +93,8 @@ class World(object):
         matrix_8[-1] = matrix_3[0]
         matrix_8[:-1] = matrix_3[1:] 
 
-        return matrix * (1-index) + (matrix_1 + matrix_2 + matrix_3 + matrix_4)*index/8.0
-
+        return matrix * (1-index) + (matrix_1 + matrix_2 + matrix_3 + matrix_4 + matrix_5 \
+            + matrix_6 + matrix_7 + matrix_8)*index/8.0
     '''
         generate N people
     '''
@@ -121,7 +113,9 @@ class World(object):
         ids = np.arange(self.NUM_PEOPLE)
         ages = np.zeros(self.NUM_PEOPLE, dtype=int)
         metabolism = np.random.randint(1, self.METABOLISM_MAX+1, size=self.NUM_PEOPLE)
-        life_expectancy = np.random.randint(self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE)
+        life_expectancy = np.random.randint(
+            self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE
+            )
         for i in ids:
             ages[i] += np.random.randint(life_expectancy[i])
         vision = np.random.randint(1, self.MAX_VISION+1, size=self.NUM_PEOPLE) 
@@ -138,10 +132,9 @@ class World(object):
     def __update_lorenz_and_gini(self):
         # sort wealth
         sorted_wealth = sorted(self.peoples.items(), key= lambda x:x[1].wealth)
-        total_wealth = 0
+        total_wealth = 0.0
         for id in range(self.NUM_PEOPLE):
             total_wealth += self.peoples[id].wealth
-
         wealth_sum_so_far = 0
         gini_index_reserve = 0
         lorenz_points = []
@@ -184,17 +177,24 @@ class World(object):
         The procedure will hapen in one clock
     '''
     def step(self):
-        location_index = {}
+        people_here = {}
         max_wealth = 0
+
         # each people decide direction
         for people in self.peoples.values():
             people.turn_towards_grain()
-            location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
-        
+            people_here[(people.axis_x, people.axis_y)] = \
+                people_here.get((people.axis_x, people.axis_y), 0) + 1
+
         # each people step
         for people in self.peoples.values():
             # harvest
-            people.wealth += float(self.grains_distribution[people.axis_x, people.axis_y]) / location_index[(people.axis_x, people.axis_y)]
+            harvest = float(self.grains_distribution[people.axis_x, people.axis_y])\
+                 / people_here[(people.axis_x, people.axis_y)] 
+            people.wealth += harvest
+            # now that the grain has been harvested, have the turtles make the
+            # patches which they are on have no grain
+            self.grains_distribution[people.axis_x, people.axis_y] -= harvest
             people.move_eat_age_die()
             max_wealth = max(people.wealth, max_wealth)
 
@@ -207,6 +207,7 @@ class World(object):
         gini_results, rich, middle, poor= [], [], [], []
 
         while self.clock <= self.MAXIMUM_CLOCK:
+            # exectue one step, record the num of rich, middle and poor
             r, m, p = self.step()
             rich.append(r)
             middle.append(m)
