@@ -42,98 +42,48 @@ def load_netlogo_data(id):
 def simulator(argv):
     save_graph_flag = True
     compare_netlog = False
-    compare_extend_world = False
     conf = load_config()['SETTINGS']
-
-    # read options from command line
-    try:
-        opts, _ = getopt.getopt(argv, "hgc:i:", ["help", "Nograph", "clock", "id"])
-    except getopt.GetoptError:
-        print('-h --help \t help info')
-        print('-c --clock [int]\t running times, default == 100')
-        print('-g --Nograph\t Do not generate graph results with this parameter')
-        print('-i --id [int]\t Load a predefined configuration and compare with netlog result')
-        print('-e --extend [int]\t Compare the result of original and extend world based on a predefined configuration.')
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt in ('-h', '--help'):
-            print('-h --help \t help info')
-            print('-c --clock [int]\t running times, default == 100')
-            print('-g --graph \t Do not generate graph results with this parameter')
-            print('-i --id [int]\t Load a predefined configuration and compare')
-            print('-e --extend [int]\t Compare the result of original and extend world based on a predefined configuration.')
-            sys.exit()
-        elif opt in ('-c', '--clock'):
-            conf['MAXIMUM_CLOCK'] = arg
-        elif opt in ('-g', '--graph'):
-            save_graph_flag = False
-            folder = os.path.exists('./graph')
-            if not folder:
-                os.makedirs('./graph')  
-        elif opt in ('-i', '--id'):
-            conf = load_config(arg)['SETTINGS']
-            p_gini, p_poor, p_middle, p_rich = load_netlogo_data(arg)
-            compare_netlog = True
-            save_graph_flag = True
-            compare_extend_world = False
-        elif opt in ('-e', '--extend'):
-            conf = load_config(arg)['SETTINGS']
-            p_gini, p_poor, p_middle, p_rich = load_netlogo_data(arg)
-            compare_netlog = False
-            save_graph_flag = True
-            compare_extend_world = True
-
-
-    # Initial world
-    if compare_netlog or compare_extend_world:
-        conf['MAXIMUM_CLOCK'] = str(len(p_gini)-1)
-    world = World(conf)
+    save_graph_flag = True
+    compare_extend_world = True
 
     setting = {}
-    setting["INHERITANCE_RATE"] = 0.5
-    setting["GENETIC"] = 0.5
-    setting['SUMMER_INTERVAL'] = 0
-    setting['RECLAMATION_INTERVAL'] = 100
+    for h in range(1, 11):
+        setting['INHERITANCE_RATE'] = 0.5 + h * 0.05
+        for m in range(1, 11):
+            setting["GENETIC"] = 0.5 + m * 0.05
+            for n in range(0, 100, 10):
+                setting['SUMMER_INTERVAL'] = n
+                for z in range(10, 100, 10):
+                    setting['RECLAMATION_INTERVAL'] = z
+                    conf['MAXIMUM_CLOCK'] = 500
+                    world = World(conf)
+                    extensionWorld = WorldExtension(world, conf)
+                    total_lorenz, total_gini, total_rich, total_middle, total_poor = extensionWorld.simulate()
+                    for i in range(0, 99):
+                        world = World(conf)
+                        extensionWorld = WorldExtension(world, conf)
+                        lorenz, gini, rich, middle, poor = extensionWorld.simulate()
+                        total_lorenz = [x + y for x, y in zip(total_lorenz, lorenz)]
+                        total_gini = [x + y for x, y in zip(total_gini, gini)]
+                        total_rich = [x + y for x, y in zip(total_rich, rich)]
+                        total_middle = [x + y for x, y in zip(total_middle, middle)]
+                        total_poor = [x + y for x, y in zip(total_poor, poor)]
+                    lorenz = [c/100 for c in total_lorenz ]
+                    gini = [c / 100 for c in total_gini]
+                    rich = [c / 100 for c in total_rich]
+                    middle = [c / 100 for c in total_middle]
+                    poor = [c / 100 for c in total_poor]
+                    result = {}
+                    result['']
+                    generate_graph_without_compare(conf, result)
 
-
-
-
-    extensionWorld = WorldExtension(world, conf)
     # start simulation
     # lorenz_result, gini_results, rich, middle, poor = world.simulate()
-    extend_lorenz, extend_gini, extend_rich, extend_middle, extend_poor = extensionWorld.simulate()
+
     # store_data(lorenz_result, gini_results, rich, middle, poor, 'lorenz_result.csv', 'result.csv')
     store_data(extend_lorenz, extend_gini, extend_rich, extend_middle, extend_poor, 'extend_lorenz_result.csv', 'extend_result.csv')
-    if save_graph_flag:
-
-        extend_result = {}
-        extend_result['lorenz'] = extend_lorenz
-        extend_result['gini'] = extend_gini
-        extend_result['rich'] = extend_rich
-        extend_result['middle'] = extend_middle
-        extend_result['poor'] = extend_poor
 
 
-        if compare_netlog:
-            netlog_result= {}
-            netlog_result['gini'] =  p_gini
-            netlog_result['poor'] = p_poor
-            netlog_result['middle'] = p_middle
-            netlog_result['rich'] = p_rich
-            generate_graph(conf, extend_result, netlog_result)
-
-
-        if compare_extend_world:
-            original_result = {}
-            original_result['gini'] = gini_results
-            original_result['poor'] = rich
-            original_result['middle'] = middle
-            original_result['rich'] = poor
-            generate_graph(conf, extend_result, extend_result)
-
-        if (not compare_netlog) and (not compare_extend_world):
-            generate_graph_without_compare(conf, extend_result)
 
 
 
@@ -154,7 +104,7 @@ def store_data(lorenz_result, gini_results, rich, middle, poor, lorenz_path, res
         csv_writer.writerow(middle)
         csv_writer.writerow(poor)
 
-def generate_graph_without_compare(conf, simulate_result):
+def generate_graph_without_compare(conf, simulate_result, ):
     # generate graph
         print('Saving Graph')
         axis_x = np.arange(int(conf['MAXIMUM_CLOCK'])+1)
