@@ -1,4 +1,3 @@
-             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % University Assignment Title Page 
 % LaTeX Template
@@ -73,7 +72,7 @@
 	\getrefnumber{countitems@\number\c@nextitemizecount}%
 }
 \newcommand{\previtemizecount}{%
-	\getrefnumber{countitems@\number\numexpr\value{nextitemizecount}-1\relax}%
+	\getrefnumber{countitems@\number\numexpr\value{nextitemizecount}-1x\relax}%
 }
 \makeatother    
 \newenvironment{AutoMultiColItemize}{%
@@ -175,25 +174,25 @@ Wealth is always a  trade. Wealth distribution becomes an extremely hot topic fo
 
 There are multiple reasons and motivations for us to analyze this topic. Firstly, it relates to our daily life. The more we know about the wealth, the better we could manipulate it such as daily usage or investment. In our model, people are divided into three classes, the poor, the middle and the rich. If we can summarized something helpful. It may contribute to others for further decision in the future, which is our motivation as well.\\
 
-In our project, we aim to accomplish two part. The first part concentrates on replicating the original model provided by NetLogo. The basic attributes that contribute to wealth distribution listed blow.
-  \begin{AutoMultiColItemize}
-	\item num of people
+In our project, we aim to accomplish two part. The first part concentrates on replicating the original model provided by NetLogo. The basic attributes we applied to contribute to wealth distribution list blow.
+\begin{multicols}{2}
+  \begin{itemize}
+	\item grain growth interval
 	\item max vision
 	\item max of metabolism
-	\item min of life expectancy
-	\item max of life expectancy
+	\item number of grain grow
 	\item percentage of best land
-\end{AutoMultiColItemize}
-This model is much simpler than real world model but the dialectical law of the development is the same, which states that gradually a small part of people possess majority of wealth while the whole system tends to be stable. However, it's still a complex system as a set of things work together as parts of a mechanism or an interconnecting network. The whole system consists of grain and people. People collect grains and compete with others.\\
+\end{itemize}
+\end{multicols}
+This model is much simpler than real world model but the dialectical law of the development keep the same, which states that gradually a small part of people possess majority of wealth and the whole system tends to be stable. However, it's still a complex system as a set of things work together as parts of a mechanism or an interconnecting network. The whole system consists of grain and people. People collect grains and compete with others.\\
 
 
-The second part focuses on extensions. We add multiple variables and try to impact the wealth distribution.
-   \begin{AutoMultiColItemize}
+The second part focuses on extensions. We add multiple variables and try to make some differences of the wealth distribution.
+   \begin{itemize}
  	\item Heritage inheritance
- 	\item Birth rate
  	\item Season
  	\item Reclamation
- \end{AutoMultiColItemize}
+ \end{itemize}
 Further more, we are interested in finding a solution to reduce the wealth distribution.
 \section{Design}
 \subsection{Original Model}
@@ -212,27 +211,39 @@ Based on original model, we are going to improve its complexity by adding multip
 \begin{enumerate}
 	\item Heritage inheritance\\
 	In original model, people will discard all the money belonging to them when they are dead and generate money randomly when they reborn. In our extension, we introduce inheritance function for collecting their money when they reborn. Based on our assumption, it should be a way to speed up model development. 
-	\item Birth rate\\
-	
 	\item Season\\
-	The richness of land is fixed when the world is initialized in original model. We think that the circumstance could be more interesting if this factor varies. Therefore, the season function is come up. In our extended model, the richness of land varies from clock. We don't have any certain assumption of result with this season function.
+	The richness of land is fixed when the world is initialized in original model. We think that the circumstance could be more interesting if this factor varies. Therefore, the season function is come up. In our extended model, the richness of land varies based on different clock. We assume there are two seasons, land generates the same amount of grain as before in summer. In winter, land only generates half grain. We will find out the relationship between seasons and wealth distribution.
 	\item Reclamation\\
-	Fixed size of land is another limitation in original model. We add reclamation function to extend the size of land as time goes. We believe it should be a good way to mitigate wealth distribution gap as the total available lands increase and there should be less competition comparing to before. 
+	Based on previous extension, we change the richness of land in different season. However, there should be lots of factors to impact a small part of land's richness. In order to simulate this situation, we introduce the reclamation function, which aims to improve or reduce a small part of land's richness suddenly in a time interval. We want to figure out if sudden incident will impact final wealth distribution.
 \end{enumerate}
-\section{Results}
+\section{Results \& Discussion}
 \subsection{Evaluation Tools}
 \begin{itemize}
 	\item Class distribution\\
-	Some direct population proportion diagrams are simplest way to figure out the wealth distribution.
+	Some direct population proportion diagrams are simplest way to figure out the wealth distribution. Within a single time of wealth evolution, class distribution diagram is a critical tool to evaluate the evolution speed. 
 	\item Gini-index\\
 	Gini coefficient is a single mathematical index to measure the inequity of wealth distribution. It is one of most important methods to evaluate how severe the actual wealth distribution deviates from equal distribution.
-	\item Lorenz Curve\\
-	Lorenz Curve is a more general graphical way to illustrate wealth or income distribution. Different from Gini-index, Lorenz Curve could clearly display wealth distribution in any degree.  
 \end{itemize}
 \subsection{Results of Original Model}
+In replicated model, we will evaluate how wealth distributes with varied  five factors mentioned before.  
 \subsection{Results of Extended Model}
-\section{Discussion}
-
-
-
+We find that our three extensions don't impact the final wealth distribution. However, there is a huge difference during the evolution such as evolution speed and evolution fluctuation. Here we will discuss the results from extensions to answer the questions addressed above. 
+\subsubsection{Heritage Inheritance}
+The result of extension prove our assumption that the heritage inheritance will speed up evolution of wealth distribution.
+\subsubsection{Season}
+After our analysis, we find that season is a complex factor to impact the wealth distribution.
+\begin{enumerate}[I]
+	\item rich circumstance: People have enough remaining grain to deal with season change in this situation. There is little difference between this and original model.
+	
+	\item middle circumstance: Part of poor people could not survive from winter in current situation. From the diagram, we could find that small fluctuation appears after a while winter came.  
+	\item poor circumstance: Large number of  poor people could not survive from winter if original land is already too poor.
+\end{enumerate}
+Finally, we get the conclusion of relationship between season and wealth distribution, which is that season may put pressure on everyone's life. However, the rich can get over it with bench of savings while the poor may not be able to survive if the situation is too severe.
+\subsubsection{Reclamation}
+We simply implement reclamation function by replacing grains of two random lands. Based on result we get from simulator, we find that there is redistribution process every time reclamation happens. It relatively slows down the evolution speed.
+\section{Further Improvement}
+\begin{itemize}
+	\item Firstly, we actually didn't find out a possible way to prevent or mitigate the wealth distribution gap between the poor and the rich.
+	\item Secondly, we would have wanted to implement the loan system as extension. However, we find that it's also a very complex system as we can't track every single person in our system. 
+\end{itemize}
 \end{document}
