@@ -3,8 +3,6 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    first = np.zeros(10)
-    h = first.copy()
-    first[6] = 5
-    print(first)
-    print( h)
+    m = 13
+    n = '1'
+    print(m*n)

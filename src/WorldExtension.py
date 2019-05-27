@@ -1,7 +1,7 @@
 import numpy as np
 import threading
 import queue
-from People import People
+from PeopleExtension import People
 
 class WorldExtension(object):
 
