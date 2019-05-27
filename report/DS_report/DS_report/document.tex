@@ -261,17 +261,27 @@ The curve of Gini index can be depart to five phases.
 	When the $Talent$ increase to a threshold, we notice that the Gini index will slowly reduce. Eventually, The Gini index will back to the same level as the very beginning.
 \end{itemize}
 \subsection{Results of Extended Model}
-All three extensions are tested in rich, normal, poor circumstances.  In poor circumstance,  people die and reborn every clock so the performance of system is quite similar as original model no matter what extension added in system. Most simulate result in poor circumstance are same as below: 
+All three extensions are tested in rich, normal, poor circumstances.  In poor circumstance,  people die and reborn every clock so the performance of system is quite similar as original model no matter what extension added in system. Without inheritance, all simulate results in poor circumstance are same as below: 
 \begin{center}
-	\includegraphics[scale=0.6]{poor.png}
+	\includegraphics[scale=0.5]{poor.png}
 \end{center}
 We find that our three extensions don't impact the final wealth distribution under most situations. However, there is a huge difference during the evolution such as evolution speed and fluctuation. Here we will discuss the results from extensions to answer the questions addressed above. 
 \subsubsection{Heritage Inheritance}
-The result of extension prove our assumption that the heritage inheritance will speed up evolution of wealth distribution. 
-\begin{center}
-	\includegraphics[scale=0.6]{Inheritance.png}
-\end{center}
-The dotted line indicate the data in original model. It could be fund that the solid line has a higher slope before the system become stable. 
+The result of extension prove our assumption that the heritage inheritance will speed up evolution of wealth distribution. The experiment result also shows that the movement between class of people become less (almost 0) after we add inheritance mechanism. Finally, the Gini-index arrive 0.8 which means there are a huge gap between rich and poor in this world.
+\begin{figure*}[h]
+	\centering
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[scale=0.5]{inheritance_gini.png}
+	\end{subfigure}%
+	~ 
+	\begin{subfigure}[t]{0.5\textwidth}
+		\centering
+		\includegraphics[scale=0.5]{inheritance_classes.png}
+	\end{subfigure}
+\end{figure*}
+
+\newpage
 \subsubsection{Season}
 We define the 100 clocks as 1 year and divide it into 2 parts, summer and winter. 
 \begin{figure}[H]
