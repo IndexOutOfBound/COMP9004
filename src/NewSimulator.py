@@ -47,7 +47,7 @@ def simulator(argv):
 
     # read options from command line
     try:
-        opts, _ = getopt.getopt(argv, "hgc:i:", ["help", "Nograph", "clock", "id"])
+        opts, _ = getopt.getopt(argv, "hgc:i:e:", ["help", "Nograph", "clock", "id", "extend"])
     except getopt.GetoptError:
         print('-h --help \t help info')
         print('-c --clock [int]\t running times, default == 100')
@@ -79,7 +79,6 @@ def simulator(argv):
             compare_extend_world = False
         elif opt in ('-e', '--extend'):
             conf = load_config(arg)['SETTINGS']
-            p_gini, p_poor, p_middle, p_rich = load_netlogo_data(arg)
             compare_netlog = False
             save_graph_flag = True
             compare_extend_world = True
@@ -87,23 +86,16 @@ def simulator(argv):
 
     # Initial world
     if compare_netlog or compare_extend_world:
-        conf['MAXIMUM_CLOCK'] = str(len(p_gini)-1)
+        conf['MAXIMUM_CLOCK'] = str(2000)
+
     world = World(conf)
-
-    setting = {}
-    setting["INHERITANCE_RATE"] = 0.5
-    setting["GENETIC"] = 0.5
-    setting['SUMMER_INTERVAL'] = 0
-    setting['RECLAMATION_INTERVAL'] = 100
-
-
-
 
     extensionWorld = WorldExtension(world, conf)
     # start simulation
-    # lorenz_result, gini_results, rich, middle, poor = world.simulate()
+    lorenz_result, gini_results, rich, middle, poor = world.simulate()
+
     extend_lorenz, extend_gini, extend_rich, extend_middle, extend_poor = extensionWorld.simulate()
-    # store_data(lorenz_result, gini_results, rich, middle, poor, 'lorenz_result.csv', 'result.csv')
+    store_data(lorenz_result, gini_results, rich, middle, poor, 'lorenz_result.csv', 'result.csv')
     store_data(extend_lorenz, extend_gini, extend_rich, extend_middle, extend_poor, 'extend_lorenz_result.csv', 'extend_result.csv')
     if save_graph_flag:
 
@@ -117,7 +109,7 @@ def simulator(argv):
 
         if compare_netlog:
             netlog_result= {}
-            netlog_result['gini'] =  p_gini
+            netlog_result['gini'] = p_gini
             netlog_result['poor'] = p_poor
             netlog_result['middle'] = p_middle
             netlog_result['rich'] = p_rich
@@ -127,10 +119,10 @@ def simulator(argv):
         if compare_extend_world:
             original_result = {}
             original_result['gini'] = gini_results
-            original_result['poor'] = rich
+            original_result['poor'] =  poor
             original_result['middle'] = middle
-            original_result['rich'] = poor
-            generate_graph(conf, extend_result, extend_result)
+            original_result['rich'] = rich
+            generate_graph(conf, extend_result, original_result)
 
         if (not compare_netlog) and (not compare_extend_world):
             generate_graph_without_compare(conf, extend_result)
@@ -197,7 +189,7 @@ def generate_graph(conf, simulate_result, original_result ):
     plt.plot(axis_x, original_result['middle'], 'y:')
     plt.plot(axis_x, original_result['poor'], 'r:')
     plt.xlabel('Time')
-    plt.ylabel('Gini Index')
+    plt.ylabel('People')
     plt.savefig('./graph/class_plot.png')
     plt.cla()
 

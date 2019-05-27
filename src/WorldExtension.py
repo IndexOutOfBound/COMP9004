@@ -24,10 +24,10 @@ class WorldExtension(object):
         self.INHERITANCE_RATE = conf['INHERITANCE_RATE']
         self.GENETIC = conf['GENETIC']
         # how many clocks for summer
-        self.SUMMER_INTERVAL = conf['SUMMER_INTERVAL']
+        self.SUMMER_INTERVAL = int(conf['SUMMER_INTERVAL'])
         # how many clocks for winter
         self.WINTER_INTERVAL = 100 - self.SUMMER_INTERVAL
-        self.RECLAMATION_INTERVAL = conf['RECLAMATION_INTERVAL']
+        self.RECLAMATION_INTERVAL = float(conf['RECLAMATION_INTERVAL'])
         # the grown rate in different season
         self.SUMMER_GROWN_RATE = 1
         self.WINTER_GROWN_RATE = 0.6
@@ -36,14 +36,13 @@ class WorldExtension(object):
         # set up various parts of the world
         # generate the worlds
         # random define each land's maximum capacity
-        self.maximum_grains = world.maximum_grains
+        self.maximum_grains = world.maximum_grains.copy()
         # set up the initial grains distribution eaqual to maximum
-        self.grains_distribution = world.grains_distribution
+        self.grains_distribution = self.maximum_grains.copy()
         # random ditribute people in the world
-        self.peoples = world.peoples
+        self.peoples = self.__setup_people()
         # Initial lorenz and gini
-        self.lorenz_points = world.lorenz_points
-        self.gini_index = world.gini_index
+        self.lorenz_points, self.gini_index = self.__update_lorenz_and_gini()
 
         
     '''
@@ -64,23 +63,54 @@ class WorldExtension(object):
 
         # spread that grain around the window a little and put a little back
         # into the patches that are the "best land" found above
+        # into the patches that are the "best land" found above
         for _ in range(5):
-            for i in range(self.WORLD_SIZE_X):
-                for j in range(self.WORLD_SIZE_Y):
-                    if maximum_grains[i, j] != 0:
-                        tmp[i, j] = maximum_grains[i, j]
-                    keep_share = tmp[i, j] * 0.75
-                    tmp[i - 1:i + 2, j - 1:j + 2] += tmp[i, j] / 32.0
-                    tmp[i, j] = keep_share
+            tmp = np.maximum(tmp, maximum_grains)
+            tmp = self.__diffuse(tmp, 0.25)
 
         for _ in range(10):
-            for i in range(self.WORLD_SIZE_X):
-                for j in range(self.WORLD_SIZE_Y):
-                    keep_share = tmp[i, j] * 0.75
-                    tmp[i - 1:i + 2, j - 1:j + 2] += tmp[i, j] / 32.0
-                    tmp[i, j] = keep_share
+            tmp = self.__diffuse(tmp, 0.25)
 
         return np.floor(tmp)
+
+    def __diffuse(self, matrix, index):
+        matrix_1, matrix_2, matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
+        matrix_5, matrix_6, matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape),np.zeros(matrix.shape)
+        # matrix move up: the first row move to the last row
+        matrix_1[:-1] = matrix[1:]
+        matrix_1[-1] = matrix[0]
+
+        # matrix move down: the last row move to the first row
+        matrix_2[0] = matrix[-1]
+        matrix_2[1:] = matrix[:-1]
+
+        # matrix move left: the first column move to the last col
+        matrix_3[:, :-1] = matrix[:, 1:]
+        matrix_3[:, -1] = matrix[:, 0]
+
+        # matrix move right : the last col move to the first col
+        matrix_4[:, 0] = matrix[:, -1]
+        matrix_4[:, 1:] = matrix[:, :-1]
+
+        # matrix move right and down
+        matrix_5[0] = matrix_4[-1]
+        matrix_5[1:] = matrix_4[:-1]
+
+        # matrix move right and up
+        matrix_6[-1] = matrix_4[0]
+        matrix_6[:-1] = matrix_4[1:]
+
+        # matrix move left and down
+        matrix_7[0] = matrix_3[-1]
+        matrix_7[1:] = matrix_3[:-1]
+
+        # matrix move left and up
+        matrix_8[-1] = matrix_3[0]
+        matrix_8[:-1] = matrix_3[1:]
+
+        return matrix * (1-index) + (matrix_1 + matrix_2 + matrix_3 + matrix_4)*index/8.0
+
+
 
     '''
         generate N people
@@ -97,8 +127,12 @@ class WorldExtension(object):
         ids = np.arange(self.NUM_PEOPLE)
         ages = np.zeros(self.NUM_PEOPLE, dtype=int)
         metabolism = np.random.randint(1, self.METABOLISM_MAX, size=self.NUM_PEOPLE)
-        life_expectancy = np.random.randint(self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX+1, size=self.NUM_PEOPLE)
-        vision = np.random.randint(1, self.MAX_VISION+1, size=self.NUM_PEOPLE) 
+        life_expectancy = np.random.randint(
+            self.LIFE_EXPECTANCY_MIN, self.LIFE_EXPECTANCY_MAX + 1, size=self.NUM_PEOPLE
+        )
+        for i in ids:
+            ages[i] += np.random.randint(life_expectancy[i])
+        vision = np.random.randint(1, self.MAX_VISION+1, size=self.NUM_PEOPLE)
         wealth = metabolism + np.random.randint(0, 50, size=self.NUM_PEOPLE)
         axis_x = np.random.randint(0, self.WORLD_SIZE_X, size=self.NUM_PEOPLE)
         axis_y = np.random.randint(0, self.WORLD_SIZE_Y, size=self.NUM_PEOPLE)
@@ -147,14 +181,24 @@ class WorldExtension(object):
         return r, m, p
 
     def step(self):
-        location_index = {}
+        people_here = {}
         max_wealth = 0
+
+        # each people decide direction
         for people in self.peoples.values():
             people.turn_towards_grain()
-            location_index[(people.axis_x, people.axis_y)] = location_index.get((people.axis_x, people.axis_y), 0) + 1
-            
+            people_here[(people.axis_x, people.axis_y)] = \
+                people_here.get((people.axis_x, people.axis_y), 0) + 1
+
+        # each people step
         for people in self.peoples.values():
-            people.wealth += self.grains_distribution[people.axis_x, people.axis_y] / location_index[(people.axis_x, people.axis_y)]
+            # harvest
+            harvest = float(self.grains_distribution[people.axis_x, people.axis_y]) \
+                      / people_here[(people.axis_x, people.axis_y)]
+            people.wealth += harvest
+            # now that the grain has been harvested, have the turtles make the
+            # patches which they are on have no grain
+            self.grains_distribution[people.axis_x, people.axis_y] -= harvest
             people.move_eat_age_die()
             max_wealth = max(people.wealth, max_wealth)
 

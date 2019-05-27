@@ -4,6 +4,9 @@ import numpy as np
 import sys
 import csv
 
+from WorldExtension import WorldExtension
+
+
 class Experiment(object):
     def __init__(self, loop : int):
         self.results = []
@@ -21,20 +24,34 @@ class Experiment(object):
             'PERSENT_BEST_LAND' : 5,
             'GRAIN_GROWTH_INTERVAL' : 10,
             'NUM_GRAIN_GROWN' : 1,
+            'INHERITANCE_RATE' : 0.8,
+            'GENETIC' : 0.8,
+            'SUMMER_INTERVAL' : 100,
+            'RECLAMATION_INTERVAL' : 100
         }
+
         self.conf_max = {
             'MAX_VISION' : 15,
             'METABOLISM_MAX' : 25,
             'PERSENT_BEST_LAND' : 25,
             'GRAIN_GROWTH_INTERVAL' : 10,
-            'NUM_GRAIN_GROWN' : 10
+            'NUM_GRAIN_GROWN' : 10,
+            'INHERITANCE_RATE': 1,
+            'GENETIC': 1,
+            'SUMMER_INTERVAL': 75,
+            'RECLAMATION_INTERVAL': 100
+
         }
         self.conf_min = {
             'MAX_VISION' : 1,
             'METABOLISM_MAX' : 1,
             'PERSENT_BEST_LAND' : 5,
             'GRAIN_GROWTH_INTERVAL' : 1,
-            'NUM_GRAIN_GROWN' : 1
+            'NUM_GRAIN_GROWN' : 1,
+            'INHERITANCE_RATE': 0,
+            'GENETIC': 0,
+            'SUMMER_INTERVAL': 25,
+            'RECLAMATION_INTERVAL': 25
         }
     
     def run(self):
@@ -45,6 +62,9 @@ class Experiment(object):
         self.__loop('PERSENT_BEST_LAND')
         self.__loop('MAX_VISION')
         self.__reverse_loop('METABOLISM_MAX')
+        self.__loop('INHERITANCE_RATE')
+        self.__loop('SUMMER_INTERVAL')
+        self.__reverse_loop('RECLAMATION_INTERVAL')
         return self.results
 
     def __loop(self, key: str) -> tuple:

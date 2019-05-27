@@ -60,7 +60,7 @@ class World(object):
         matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_5, matrix_6 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape)
-        
+
         # matrix move up: the first row move to the last row
         matrix_1[:-1] = matrix[1:]
         matrix_1[-1] = matrix[0]
@@ -174,7 +174,7 @@ class World(object):
         return r, m, p
 
     '''
-        The procedure will hapen in one clock
+        The procedure will happen in one clock
     '''
     def step(self):
         people_here = {}
@@ -190,7 +190,7 @@ class World(object):
         for people in self.peoples.values():
             # harvest
             harvest = float(self.grains_distribution[people.axis_x, people.axis_y])\
-                 / people_here[(people.axis_x, people.axis_y)] 
+                 / people_here[(people.axis_x, people.axis_y)]
             people.wealth += harvest
             # now that the grain has been harvested, have the turtles make the
             # patches which they are on have no grain
