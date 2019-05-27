@@ -1,17 +1,48 @@
-# Running
-```
-$ python src/Simulator.py
+# Wealthy Distribution Model
+
+## Doc Structure
+
+- `./src` : source code folder
+  - `Simulator.py` : Run this file to simulate the Wealthy Distribution Model
+  - `default.conf`: Default configuration for parameters.
+  - `World.py`: Class of the original World object
+  - `People.py`: Class of the original people object
+  - `result.csv`: The result for a single simulation. 1st row is each tickets' gini index. 2nd row is each ticket's number of rich. 3rd row is each ticket's number of middle. 4th row is each ticket's number of poor.
+  - `lorenz_result.csv`: The lorenz points for each ticket.
+  - `Experiment_data.csv`: The result of Experiment.
+  - `./graph` Store the graph result
+    - `class_plot.png`: The line chart for the poor, the middle and the rich number.
+    - `gini_index.png`: The line chart for the Gini index
+    - `lorenz_{i}`: the lorenz curve for ticket _{i}_
+- `./data`: Several pre-exported data from NetLogo.
+
+## Running Simulation
+
+```bash
+python3 src/Simulator.py
 ```
 
-**Parameters**
-```
--h --help 	 help info
--c --clock 	 running times, default == 100
--g --graph 	 Generate graph results with this parameter
+### Parameters
+
+```bash
+-h --help           help info
+-c --clock [int]    running times, default == 1000
+-g --Nograph        Do not generate graph results with this parameter
+-i --id [int]       Load a predefined configuration under <../data/>
+                    and compare. Otherwise it will load the default.conf
 ```
 
-# Result
-- `lorenz_result.csv`: Each clock's lorenz curve points.
-- `gini_result.csv`: Each clock's gini index.
-- `graph/gini_index.jpg`: the gini_index's graph for wholr simulation
-- `graph/lorenz_{i}`: the lorenz curve for clock _{i}_
+## Running Experiment
+
+```bash
+python3 src/Experiment.py
+```
+
+### Parameters
+
+```bash
+-h --help            help message 
+-l --loop [integer]  running times for each group of parameters,
+                     default=1
+-s --step [integer]  step for change parameter, default=1
+```

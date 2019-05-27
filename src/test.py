@@ -3,5 +3,8 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    newMaximum = np.full(10,-1)
-    print(newMaximum)
+    first = np.zeros(10)
+    h = first.copy()
+    first[6] = 5
+    print(first)
+    print( h)

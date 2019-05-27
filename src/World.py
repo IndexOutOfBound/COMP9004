@@ -55,12 +55,17 @@ class World(object):
 
         return np.floor(tmp)
 
+    '''
+        Execute Diffusing process.
+        Move the world matrix to each direction once,
+        and added with the oringinal world matrix
+    '''
     def __diffuse(self, matrix, index):
         matrix_1, matrix_2 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_5, matrix_6 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_7, matrix_8 = np.zeros(matrix.shape),np.zeros(matrix.shape)
-        
+
         # matrix move up: the first row move to the last row
         matrix_1[:-1] = matrix[1:]
         matrix_1[-1] = matrix[0]
@@ -95,6 +100,7 @@ class World(object):
 
         return matrix * (1-index) + (matrix_1 + matrix_2 + matrix_3 + matrix_4 + matrix_5 \
             + matrix_6 + matrix_7 + matrix_8)*index/8.0
+
     '''
         generate N people
     '''
@@ -174,12 +180,11 @@ class World(object):
         return r, m, p
 
     '''
-        The procedure will hapen in one clock
+        The procedure will happen in one clock
     '''
     def step(self):
         people_here = {}
         max_wealth = 0
-
         # each people decide direction
         for people in self.peoples.values():
             people.turn_towards_grain()
@@ -190,8 +195,7 @@ class World(object):
         for people in self.peoples.values():
             # harvest
             harvest = float(self.grains_distribution[people.axis_x, people.axis_y])\
-                 / people_here[(people.axis_x, people.axis_y)] 
-            people.wealth += harvest
+                 / people_here[(people.axis_x, people.axis_y)]
             # now that the grain has been harvested, have the turtles make the
             # patches which they are on have no grain
             self.grains_distribution[people.axis_x, people.axis_y] -= harvest
@@ -202,7 +206,6 @@ class World(object):
         return self.__group_people(max_wealth)
         
     def simulate(self):
-        print('Start Simulation')
         lorenz_results = {}
         gini_results, rich, middle, poor= [], [], [], []
 
@@ -218,6 +221,5 @@ class World(object):
             gini_results.append(gini_index)
 
             self.clock += 1
-        print('Simulation Finished')
         return lorenz_results, gini_results, rich, middle, poor
 
