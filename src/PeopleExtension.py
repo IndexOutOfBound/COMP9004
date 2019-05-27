@@ -89,11 +89,12 @@ class People(object):
 
     def reborn(self):
         self.age = 0
-        self.__metabolism = self.__metabolism * int(self.world.GENETIC)
-        min_life = self.__life_expectancy * int(self.world.GENETIC)
+        self.__metabolism = 0.5*self.__metabolism * float(self.world.GENETIC) \
+            + 0.5*np.random.randint(0,int(self.world.METABOLISM_MAX))
+        min_life = self.__life_expectancy * float(self.world.GENETIC)
         if int(min_life )< int(self.world.LIFE_EXPECTANCY_MAX+1):
             self.__life_expectancy = min_life + np.random.randint(0, int(self.world.LIFE_EXPECTANCY_MAX+1) - min_life)
         else:
             self.__life_expectancy = min_life
-        self.__vision = self.__vision * int(self.world.GENETIC)
-        self.wealth = self.__metabolism + self.wealth*int(self.world.INHERITANCE_RATE)
+        self.__vision = np.random.randint(0,int(self.world.MAX_VISION))
+        self.wealth = self.__metabolism + self.wealth*float(self.world.INHERITANCE_RATE)
