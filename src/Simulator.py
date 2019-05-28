@@ -1,12 +1,14 @@
-from World import World
-from People import People
+import os
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import sys
-import os
 import getopt
 import configparser
+
+from World import World
+from People import People
+from WorldExtension import WorldExtension
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -39,23 +41,32 @@ def load_netlogo_data(id: str):
             middle.append(int(row[5]))
             rich.append(int(row[9]))
     
-    return gini, poor, middle, rich    
-    
-    
+    return {
+        'gini' : gini,
+        'rich' : rich,
+        'middle' : middle,
+        'poor' : poor
+    }
+
 def simulator(argv):
-    save_graph_flag = True
-    compare = False
-    conf = load_config()['SETTINGS']
+    save_lorenz_curze_graph = False
+    compare_netlogo = False
+    compare_extend_world = False
     help_massage = '''
         -h --help \t help info
         -c --clock [int]\t running times, default == 1000
-        -g --Nograph\t Do not generate graph results with this parameter
+        -l --lorenz [int]\t save lorenz graph, The var is the step when store
         -i --id [int]\t Load a predefined configuration under <../data/> and compare. Otherwise it 
                         will load the default.conf
+        -e --extend \t Compare the result of original and extend model
     '''
+
+    # load default configuration
+    conf = load_config()['SETTINGS']
+
     # read options from command line
     try:
-        opts, _ = getopt.getopt(argv, "hgc:i:", ["help", "Nograph", "clock", "id"])
+        opts, _ = getopt.getopt(argv, "hl:c:i:e", ["help", "lorenz", "clock", "id", "extend"])
     except getopt.GetoptError:
         print(help_massage)
         sys.exit(2)
@@ -66,73 +77,105 @@ def simulator(argv):
             sys.exit()
         elif opt in ('-c', '--clock'):
             conf['MAXIMUM_CLOCK'] = arg
-        elif opt in ('-g', '--graph'):
-            save_graph_flag = False
-            folder = os.path.exists(f'{BASE_PATH}/src/graph')
-            if not folder:
-                os.makedirs(f'{BASE_PATH}/src/graph')  
+        elif opt in ('-l', '--lorenz'):
+            save_lorenz_curze_graph = True
         elif opt in ('-i', '--id'):
             conf = load_config(arg)['SETTINGS']
-            p_gini, p_poor, p_middle, p_rich = load_netlogo_data(arg)
-            compare = True
-            save_graph_flag = True 
+            netlogo_data = load_netlogo_data(arg)
+            compare_netlogo = True
+        elif opt in ('-e', '--extend'):
+            compare_extend_world = True
 
-    # Initial world
-    if compare:
-        conf['MAXIMUM_CLOCK'] = str(len(p_gini)-1)
-    
+    # if compare with the netlogo data, the max ticket depends on the given data
+    if compare_netlogo:
+        conf['MAXIMUM_CLOCK'] = str(len(netlogo_data['gini'])-1)
+    # Originial Model ------------------------------------
     print('Initialize World...')
     world = World(conf)
     print('Initialize Successful!\nStart Simulation...')
-    # start simulation
     lorenz_result, gini_results, rich, middle, poor = world.simulate()
     print('Simulation Successful!')
-    # store lorenz points in csv
-    with open(f'{BASE_PATH}/src/lorenz_result.csv', 'w') as lorenz:
-        csv_writer = csv.writer(lorenz)
-        for key, value in lorenz_result.items():
-            csv_writer.writerow([key, value])
-    # store gini result in csv
-    with open(f'{BASE_PATH}/src/result.csv', 'w') as gini:
-        csv_writer = csv.writer(gini)
-        csv_writer.writerow(gini_results)
-        csv_writer.writerow(rich)
-        csv_writer.writerow(middle)
-        csv_writer.writerow(poor)
-    
-    # generate graph
-    if save_graph_flag:
-        print('Saving Graph')
-        axis_x = np.arange(int(conf['MAXIMUM_CLOCK'])+1)
-        # generate Gini Index graph
-        plt.plot(axis_x, gini_results)
-        if compare:
-            plt.plot(axis_x, p_gini, ':') 
-        plt.ylim(0, 1)
-        plt.xlabel('Time')
-        plt.ylabel('Gini Index')
-        plt.savefig(f'{BASE_PATH}/src/graph/gini_index.png')
-        plt.cla()
+    # store result in csv
+    store_csv('lorenz_result', *lorenz_result)
+    store_csv('result', gini_results, rich, middle, poor)
+    original = {
+        'clock' : int(conf['MAXIMUM_CLOCK']),
+        'num_people' :  int(conf['NUM_PEOPLE']),
+        'gini' : gini_results,
+        'rich' : rich,
+        'middle' : middle,
+        'poor' : poor,
+        'lorenz_result' : lorenz_result,
+        'lorenz' : save_lorenz_curze_graph
+    }
+    if compare_netlogo:
+        save_graph(original, netlogo_data)
+    elif compare_extend_world:
+        print('Initialize Extend World...')
+        extend_world = WorldExtension(conf)
+        print('Initialize Successful!\nStart Extend Simulation...')
+        extend_lorenz, extend_gini, extend_rich, extend_middle, extend_poor = extend_world.simulate()
+        print('Simulation Successful!')
+        # store result 
+        store_csv('extend_lorenz_result', *extend_lorenz)
+        store_csv('extend_result', extend_gini, extend_rich, extend_middle, extend_poor)
+        extend = {
+            'clock' : int(conf['MAXIMUM_CLOCK']),
+            'num_people' :  int(conf['NUM_PEOPLE']),
+            'gini' : extend_gini,
+            'rich' : extend_rich,
+            'middle' : extend_middle,
+            'poor' : extend_poor,
+            'lorenz_result' : lorenz_result,
+            'lorenz' : save_lorenz_curze_graph 
+        }
+        save_graph(extend, original)
+    else:
+        save_graph(original)
 
-        # generate people group graph
-        plt.plot(axis_x, rich, color='b')
-        plt.plot(axis_x, middle, color='y')
-        plt.plot(axis_x, poor, color='r')
-        if compare:
-            plt.plot(axis_x, p_rich, 'b:')
-            plt.plot(axis_x, p_middle, 'y:') 
-            plt.plot(axis_x, p_poor, 'r:')
-        plt.xlabel('Time')
-        plt.ylabel('Gini Index')
-        plt.savefig(f'{BASE_PATH}/src/graph/class_plot.png')
-        plt.cla()
+def store_csv(des, *arg):
+    folder = os.path.exists(f'{BASE_PATH}/src/result')
+    if not folder:
+        os.makedirs(f'{BASE_PATH}/src/result')  
+    with open(f'{BASE_PATH}/src/result/{des}.csv', 'w') as f:
+        csv_writer = csv.writer(f)
+        for row in arg:
+            csv_writer.writerow(row)
 
-        # generate Lorenz curve graph
-        for i in range(0, int(conf['MAXIMUM_CLOCK'])+1,100):
-            x = np.arange(0, 100.0, 100.0/int(conf['NUM_PEOPLE']))
-            plt.plot(x, lorenz_result[i], color='red')
-            plt.plot(x, x, linestyle='--')
-            plt.savefig(f'{BASE_PATH}/src/graph/lorenz_{i}.png')
+def save_graph(new : dict, old=None):
+    print('Saving Graph')
+
+    axis_x = np.arange(new['clock'] + 1)
+    # generate Gini Index graph
+    plt.plot(axis_x, new['gini'])
+    if old is not None:
+        plt.plot(axis_x, old['gini'], ':') 
+    plt.ylim(0, 1)
+    plt.xlabel('Time')
+    plt.ylabel('Gini Index')
+    plt.savefig(f'{BASE_PATH}/src/result/gini_index.png')
+    plt.cla()
+
+    # generate people group graph
+    plt.plot(axis_x, new['rich'], color='b')
+    plt.plot(axis_x, new['middle'], color='y')
+    plt.plot(axis_x, new['poor'], color='r')
+    if old is not None:
+        plt.plot(axis_x, old['rich'], 'b:')
+        plt.plot(axis_x, old['middle'], 'y:') 
+        plt.plot(axis_x, old['poor'], 'r:')
+    plt.xlabel('Time')
+    plt.ylabel('Num of People')
+    plt.savefig(f'{BASE_PATH}/src/result/class_plot.png')
+    plt.cla()
+
+    # generate Lorenz curve graph
+    if new['lorenz']:
+        for i in range(0, new['clock'] + 1,100):
+            axis_x = np.arange(0, 100.0, 100.0/new['num_people'])
+            plt.plot(axis_x, new['lorenz_result'][i], color='red')
+            plt.plot(axis_x, axis_x, linestyle='--')
+            plt.savefig(f'{BASE_PATH}/src/result/lorenz_{i}.png')
             plt.cla()
 
 

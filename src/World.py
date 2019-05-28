@@ -1,6 +1,4 @@
 import numpy as np
-import threading
-import queue
 from People import People
 
 class World(object):
@@ -155,7 +153,7 @@ class World(object):
     
     '''
         patch procedure, if a patch does not have it's maximum amount of grain, add
-        num-grain-grown to its grain amount
+        Num-grain-grown to its grain amount
     '''
     def _grain_grow(self):
         if self.clock % self.GRAIN_GROWTH_INTERVAL == 0:
@@ -208,7 +206,7 @@ class World(object):
         return self._group_people(max_wealth)
         
     def simulate(self):
-        lorenz_results = {}
+        lorenz_results = []
         gini_results, rich, middle, poor= [], [], [], []
 
         while self.clock <= self.MAXIMUM_CLOCK:
@@ -219,7 +217,7 @@ class World(object):
             poor.append(p)
             # records lorenz & gini index
             lorenz_points, gini_index = self._update_lorenz_and_gini()
-            lorenz_results[self.clock] = lorenz_points
+            lorenz_results.append(lorenz_points)
             gini_results.append(gini_index)
 
             self.clock += 1

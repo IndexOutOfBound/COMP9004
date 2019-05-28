@@ -1,7 +1,5 @@
 *.class
 *.pyc
-*.csv
-*.conf
 *.png
 #package file
 
