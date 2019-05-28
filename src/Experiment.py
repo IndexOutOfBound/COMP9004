@@ -86,6 +86,7 @@ class Experiment(object):
             self.results.append(config) 
 
 if __name__ == "__main__":
+    import os
     import sys
     import csv
     import getopt
@@ -115,8 +116,11 @@ if __name__ == "__main__":
     experimenter = Experiment(loop, step)
     results = experimenter.run()
 
+    folder = os.path.exists(f'{BASE_PATH}/src/result')
+    if not folder:
+        os.makedirs(f'{BASE_PATH}/src/result')  
     # Store the experiment result
-    with open(f'{BASE_PATH}/src/experiment_data.csv', 'w') as f:
+    with open(f'{BASE_PATH}/src/result/experiment_data.csv', 'w') as f:
         csv_writer = csv.writer(f)
         for config in results:
             csv_writer.writerow(config)

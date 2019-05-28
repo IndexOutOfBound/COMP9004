@@ -1,6 +1,8 @@
 *.class
 *.pyc
 *.png
+*.csv
+*.conf
 #package file
 
 *.war
