@@ -43,7 +43,7 @@
 \usepackage{enumerate}
 \usepackage[english]{babel}
 \usepackage{caption}
-
+\usepackage{hyperref}
 \usepackage{listings}
 \usepackage{color}
 \usepackage[left=1.5cm, right=1.5cm, top=1.5cm, bottom=2cm]{geometry}
@@ -141,6 +141,7 @@
 %----------------------------------------------------------------------------------------
 
 \begin{minipage}{0.4\textwidth}
+	\centering
 	\bfseries     Yang Zhang(956835)\\
 	\bfseries     Weikai Zeng(893814) \\
 	\bfseries     Rui Zhao(860411)\\
@@ -161,9 +162,8 @@
 %----------------------------------------------------------------------------------------
 
 \includegraphics[scale = 0.27]{logo.png}\\[1cm] % Include a department/university logo - this will require the graphicx package
- 
+ \textsc{Word Count: 1399}\\[1.5cm]
 %----------------------------------------------------------------------------------------
-
 \vfill % Fill the rest of the page with whitespace
 
 \end{titlepage}
@@ -174,14 +174,14 @@ The Wealthy Distribution model is a complex model with a set of things working t
 
 As the wealth is related to everyone’s daily life, Most of the people are desired to get more wealth or resource, especially for the people who do not have sufficient resources, they dream to change their life through their effort. This model may give us some inspiration for wealthy distribution.\\
 
-We aim to accomplish two parts. We will concentrate on replicating the original model provided by NetLogo at first, and figure out how the properties below influence the Gini Index.
+We aim to accomplish two parts\footnote{Total word count in this report: 1399}. We will concentrate on replicating the original model provided by NetLogo at first, and figure out how the properties below influence the Gini Index.
 	grain growth interva,max of metabolism, number of grain grow,percentage of best land, max vision
 
 Then, We will add three new properties, \textbf{Heritage inheritance}, \textbf{Season} and \textbf{Reclamation}, and research how these properties change the original result.
 \section{Design}
 \subsection{Original Model}
 The domain diagram of our model is shown as below. The WorldExtension is extends from World and PeopleExtension extends from People as well.\\
-  [image]
+%  [image]
 We use a 2-dimension matrix to represent the world. Each element is a land and its value represent the grains at here. We use another matrix which has the same shape to decide the maximum capacity of lands. Thus we do not need to create a land object. Using matrix can also speed up the computing.\\
 \\
 There are two behaviors for a person in every clock. Firstly, everyone tries to find a best land within vision and cost some grains. When someone's age is larger than expected life expectancy, he will die and rebirth with random values of properties.
@@ -304,6 +304,8 @@ If we reduce the vision of people and increase the frequency of reclamation, the
 \end{figure*}
 \section*{Appendix}
 In our group, Rui Zhao focuses on implementing the replicated model based on the original NetLogo model. Weikai Zeng implements the extensions with the base of replicated model. Yang Zhang concentrates on writing the reports.\\
+
+Our statistic data stored on the drive. The link shows here: \url{https://drive.google.com/open?id=1Qio2P0ql1nWkcCwRySZ5nTG3h6K63MwPTOnkG8sOdPI}
 
 During implementing the whole wealth distribution system, we met two challenges and wish to overcome it in the future.
 \begin{itemize}
