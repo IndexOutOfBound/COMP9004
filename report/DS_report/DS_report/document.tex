@@ -181,7 +181,11 @@ Then, We will add three new properties, \textbf{Heritage inheritance}, \textbf{S
 \section{Design}
 \subsection{Original Model}
 The domain diagram of our model is shown as below. The WorldExtension is extends from World and PeopleExtension extends from People as well.\\
-%  [image]
+\begin{figure}
+	\begin{center}
+		\includegraphics[scale=0.6]{domain.png}
+	\end{center}
+\end{figure}
 We use a 2-dimension matrix to represent the world. Each element is a land and its value represent the grains at here. We use another matrix which has the same shape to decide the maximum capacity of lands. Thus we do not need to create a land object. Using matrix can also speed up the computing.\\
 \\
 There are two behaviors for a person in every clock. Firstly, everyone tries to find a best land within vision and cost some grains. When someone's age is larger than expected life expectancy, he will die and rebirth with random values of properties.
