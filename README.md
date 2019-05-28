@@ -1,5 +1,11 @@
 # Wealthy Distribution Model
 
+## Team member
+
+- Rui Zhao : 860411
+- Weikai Zeng : 893814
+- Yang Zhang: 956835
+  
 ## Doc Structure
 
 - `./src` : source code folder
@@ -18,15 +24,21 @@
     - `lorenz_{i}`: the lorenz curve for ticket _{i}_
 - `./data`: Several pre-exported data from NetLogo.
 
+## Dependencies
+
+This Model need `python3` and packages: `numpy` and `matplotlib`
+
 ## Running Simulation
 
-```bash
+run `Simulator.py` or add some extra options.
+
+```
 python3 src/Simulator.py
 ```
 
 ### Parameters
 
-```bash
+```
 -h --help           help info
 -c --clock [int]    running times, default == 1000
 -l --lorenz [int]   save lorenz graph, The var is the step when store
@@ -36,15 +48,16 @@ python3 src/Simulator.py
 
 ## Running Experiment
 
-```bash
+Run `Experiment.py` or add some extra options.
+
+```
 python3 src/Experiment.py
 ```
 
-### Parameters
+### Options
 
-```bash
--h --help            help message 
--l --loop [integer]  running times for each group of parameters,
-                     default=1
+```
+-h --help            help info 
+-l --loop [integer]  running times for each group of parameters, default=1
 -s --step [integer]  step for change parameter, default=1
 ```
