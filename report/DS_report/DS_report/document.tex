@@ -141,8 +141,9 @@
 %----------------------------------------------------------------------------------------
 
 \begin{minipage}{0.4\textwidth}
-	\bfseries Group member : Yang Zhang, Weikai Zeng, Rui Zhao\\
-	\bfseries Student ID : 956835, 893814, 860411
+	\bfseries     Yang Zhang(956835)\\
+	\bfseries     Weikai Zeng(893814) \\
+	\bfseries     Rui Zhao(860411)\\
 \end{minipage}\\[2cm]
 
 % If you don't want a supervisor, uncomment the two lines below and remove the section above
@@ -169,35 +170,21 @@
 
 
 \section{Background}
- In this project, we aim to simulate a simplified wealth distribution system comparing to real world.
-There are multiple reasons and motivations for us to analyze this topic. Firstly, it relates to our daily life. The more we know about the wealth, the better we could manipulate it such as daily usage or investment. In our model, people are divided into three classes, the poor, the middle and the rich.\\
+The Wealthy Distribution model is a complex model with a set of things working together as parts of an interconnecting network. This model has three basic objects: the world, people and grains. The world is a field with many grids. The grain grows in grids with a grown period. Each individual will gain random grains when they born and consume grains to keep alive. They keep looking for grains around the world. People have a life expectancy and they would die if they run out their grains or life.\\
 
-We aim to accomplish two parts. The first part concentrates on replicating the original model provided by NetLogo. The basic attributes we applied to contribute to wealth distribution list blow.
-\begin{multicols}{2}
-  \begin{itemize}
-	\item grain growth interval
-	\item max vision
-	\item max of metabolism
-	\item number of grain grow
-	\item percentage of best land
-\end{itemize}
-\end{multicols}
+As the wealth is related to everyone’s daily life, Most of the people are desired to get more wealth or resource, especially for the people who do not have sufficient resources, they dream to change their life through their effort. This model may give us some inspiration for wealthy distribution.\\
 
-The second part focuses on extensions. We add multiple variables and try to make some differences of the wealth distribution. In this project, we focus on three aspects, \textbf{Heritage inheritance}, \textbf{Season}, \textbf{Reclamation}.
+We aim to accomplish two parts. We will concentrate on replicating the original model provided by NetLogo at first, and figure out how the properties below influence the Gini Index.
+	grain growth interva,max of metabolism, number of grain grow,percentage of best land, max vision
+
+Then, We will add three new properties, \textbf{Heritage inheritance}, \textbf{Season} and \textbf{Reclamation}, and research how these properties change the original result.
 \section{Design}
 \subsection{Original Model}
-The first task to rebuild original model is the whole world initialization, which contains grain and people initialization based on specific configuration. We assume that the whole world is a 2-dimension matrix. There are several properties for every single person, which are the same as model in NetLogo.
-   \begin{multicols}{2}
-   	  \begin{itemize}
-   	\item ID: identification of person.
-   	\item Age: the age of person.
-	\item Vision: determines how far a person could see.
-	\item Metabolism: person cost in every global clock.
-	\item Life expectancy: how long a person stay alive
-	\item Position: current position of person.
-\end{itemize}
-\end{multicols}
-There are two behaviors for a person in every clock. Firstly, everyone tries to find a best land within vision and cost some money. When someone's age is larger than expected life expectancy, he will die and reborn with random values of properties.
+The domain diagram of our model is shown as below. The WorldExtension is extends from World and PeopleExtension extends from People as well.\\
+  [image]
+We use a 2-dimension matrix to represent the world. Each element is a land and its value represent the grains at here. We use another matrix which has the same shape to decide the maximum capacity of lands. Thus we do not need to create a land object. Using matrix can also speed up the computing.\\
+\\
+There are two behaviors for a person in every clock. Firstly, everyone tries to find a best land within vision and cost some grains. When someone's age is larger than expected life expectancy, he will die and rebirth with random values of properties.
 \subsection{Extensions}
 Based on original model, we are going to improve its complexity by adding multiple extensions. Here we list the extensions we added in this project. 
 \begin{enumerate}
