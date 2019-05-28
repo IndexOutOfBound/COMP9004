@@ -103,7 +103,7 @@ if __name__ == "__main__":
     except getopt.GetoptError:
         print(help_message)
         sys.exit(2)
-
+    loop, step = 1, 1
     for opt, arg in opts:
         if opt in ('-h', '--help'):
             print(help_message)

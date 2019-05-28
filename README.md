@@ -7,10 +7,12 @@
   - `default.conf`: Default configuration for parameters.
   - `World.py`: Class of the original World object
   - `People.py`: Class of the original people object
-  - `result.csv`: The result for a single simulation. 1st row is each tickets' gini index. 2nd row is each ticket's number of rich. 3rd row is each ticket's number of middle. 4th row is each ticket's number of poor.
-  - `lorenz_result.csv`: The lorenz points for each ticket.
-  - `Experiment_data.csv`: The result of Experiment.
-  - `./graph` Store the graph result
+  - `WorldExtension.py` Class of the extend world object
+  - `PeopleExtension.py` Class of the extend people obect
+  - `./result`: 
+    - `result.csv`: The result for a single simulation. 1st row is each tickets' gini index. 2nd row is each ticket's number of rich. 3rd row is each ticket's number of middle. 4th row is each ticket's number of poor.
+    - `lorenz_result.csv`: The lorenz points for each ticket.
+    - `Experiment_data.csv`: The result of Experiment.
     - `class_plot.png`: The line chart for the poor, the middle and the rich number.
     - `gini_index.png`: The line chart for the Gini index
     - `lorenz_{i}`: the lorenz curve for ticket _{i}_
@@ -27,9 +29,9 @@ python3 src/Simulator.py
 ```bash
 -h --help           help info
 -c --clock [int]    running times, default == 1000
--g --Nograph        Do not generate graph results with this parameter
--i --id [int]       Load a predefined configuration under <../data/>
-                    and compare. Otherwise it will load the default.conf
+-l --lorenz [int]   save lorenz graph, The var is the step when store
+-i --id [int]       Load a predefined configuration under <../data/> and compare.Otherwise it will load the default.conf
+-e --extend         Compare the result of original and extend model
 ```
 
 ## Running Experiment

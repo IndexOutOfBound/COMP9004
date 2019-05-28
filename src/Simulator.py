@@ -12,53 +12,18 @@ from WorldExtension import WorldExtension
 
 BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-'''
-load configuration file
-'''
-def load_config(id=None):
-    cf = configparser.ConfigParser()
-    if id is None:
-        cf.read(f"{BASE_PATH}/src/default.conf")
-    else:
-        cf.read(f"{BASE_PATH}/data/{id}/config.conf")
-    return cf
-
-'''
-load pre-exported netlogo data
-'''
-def load_netlogo_data(id: str):
-    # load gini index
-    gini, poor, middle, rich = [], [], [], []
-    with open(f"{BASE_PATH}/data/{id}/gini_index.csv") as f:
-        csv_reader = csv.reader(f)
-        for row in csv_reader:
-            gini.append(float(row[1]))
-    # load number of each groups 
-    with open(f"{BASE_PATH}/data/{id}/people_num.csv") as f:
-        csv_reader = csv.reader(f)
-        for row in csv_reader:
-            poor.append(int(row[1]))
-            middle.append(int(row[5]))
-            rich.append(int(row[9]))
-    
-    return {
-        'gini' : gini,
-        'rich' : rich,
-        'middle' : middle,
-        'poor' : poor
-    }
 
 def simulator(argv):
     save_lorenz_curze_graph = False
     compare_netlogo = False
     compare_extend_world = False
     help_massage = '''
-        -h --help \t help info
+        -h --help \t\t help info
         -c --clock [int]\t running times, default == 1000
         -l --lorenz [int]\t save lorenz graph, The var is the step when store
-        -i --id [int]\t Load a predefined configuration under <../data/> and compare. Otherwise it 
-                        will load the default.conf
-        -e --extend \t Compare the result of original and extend model
+        -i --id [int]\t\t Load a predefined configuration under <../data/> and compare.
+        \t\t\t Otherwise it will load the default.conf
+        -e --extend \t\t Compare the result of original and extend model
     '''
 
     # load default configuration
@@ -132,6 +97,42 @@ def simulator(argv):
         save_graph(extend, original)
     else:
         save_graph(original)
+
+'''
+load configuration file
+'''
+def load_config(id=None):
+    cf = configparser.ConfigParser()
+    if id is None:
+        cf.read(f"{BASE_PATH}/src/default.conf")
+    else:
+        cf.read(f"{BASE_PATH}/data/{id}/config.conf")
+    return cf
+
+'''
+load pre-exported netlogo data
+'''
+def load_netlogo_data(id: str):
+    # load gini index
+    gini, poor, middle, rich = [], [], [], []
+    with open(f"{BASE_PATH}/data/{id}/gini_index.csv") as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            gini.append(float(row[1]))
+    # load number of each groups 
+    with open(f"{BASE_PATH}/data/{id}/people_num.csv") as f:
+        csv_reader = csv.reader(f)
+        for row in csv_reader:
+            poor.append(int(row[1]))
+            middle.append(int(row[5]))
+            rich.append(int(row[9]))
+    
+    return {
+        'gini' : gini,
+        'rich' : rich,
+        'middle' : middle,
+        'poor' : poor
+    }
 
 def store_csv(des, *arg):
     folder = os.path.exists(f'{BASE_PATH}/src/result')
