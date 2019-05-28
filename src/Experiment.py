@@ -89,7 +89,9 @@ if __name__ == "__main__":
     import sys
     import csv
     import getopt
-    
+
+    BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
     argv = sys.argv[1:]
     help_message = '''
         -h --help \t\t help message 
@@ -114,7 +116,7 @@ if __name__ == "__main__":
     results = experimenter.run()
 
     # Store the experiment result
-    with open('experiment_data.csv', 'w') as f:
+    with open(f'{BASE_PATH}/src/experiment_data.csv', 'w') as f:
         csv_writer = csv.writer(f)
         for config in results:
             csv_writer.writerow(config)

@@ -8,7 +8,7 @@ import os
 import getopt
 import configparser
 
-BASE_PATH = os.getcwd()
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 '''
 load configuration file

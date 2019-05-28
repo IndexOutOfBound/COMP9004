@@ -24,18 +24,18 @@ class World(object):
         self.clock = 0
 
         # generate the world
-        self.maximum_grains = self.__setup_lands__capacity()
+        self.maximum_grains = self._setup_lands__capacity()
         # set up the initial grains distribution eaqual to maximum
         self.grains_distribution = self.maximum_grains.copy()
         # random ditribute people in the world
-        self.peoples = self.__setup_people()
+        self.peoples = self._setup_people()
         # Initial lorenz and gini
-        self.lorenz_points, self.gini_index = self.__update_lorenz_and_gini()
+        self.lorenz_points, self.gini_index = self._update_lorenz_and_gini()
         
     '''
         This method will generate a matrix. each value will be the related land's capacity.
     '''
-    def __setup_lands__capacity(self):
+    def _setup_lands__capacity(self):
         # generate best land
         best_land_number =  int(self.WORLD_SIZE * self.PERSENT_BEST_LAND)
         land_value_range = np.zeros(self.WORLD_SIZE-best_land_number)
@@ -48,10 +48,10 @@ class World(object):
         # into the patches that are the "best land" found above
         for _ in range(5):
             tmp = np.maximum(tmp, maximum_grains)
-            tmp = self.__diffuse(tmp, 0.25)
+            tmp = self._diffuse(tmp, 0.25)
         
         for _ in range(10):
-            tmp = self.__diffuse(tmp, 0.25)
+            tmp = self._diffuse(tmp, 0.25)
 
         return np.floor(tmp)
 
@@ -60,7 +60,7 @@ class World(object):
         Move the world matrix to each direction once,
         and added with the oringinal world matrix
     '''
-    def __diffuse(self, matrix, index):
+    def _diffuse(self, matrix, index):
         matrix_1, matrix_2 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_3, matrix_4 = np.zeros(matrix.shape),np.zeros(matrix.shape)
         matrix_5, matrix_6 = np.zeros(matrix.shape),np.zeros(matrix.shape)
@@ -104,10 +104,10 @@ class World(object):
     '''
         generate N people
     '''
-    def __setup_people(self):
+    def _setup_people(self):
         peoples = {}
         # peoples_matrix: [[id, wealth, age, metabolism, life_expectancy, vision, axis_x, axis_y],]
-        peoples_matrix = self.__generate_peoples()
+        peoples_matrix = self._generate_peoples()
         for i in range(peoples_matrix.shape[0]):
             peoples[i] = People(self, *peoples_matrix[i])
         return peoples
@@ -115,7 +115,7 @@ class World(object):
     '''
         set up initial values for the people variables 
     '''
-    def __generate_peoples(self):
+    def _generate_peoples(self):
         ids = np.arange(self.NUM_PEOPLE)
         ages = np.zeros(self.NUM_PEOPLE, dtype=int)
         metabolism = np.random.randint(1, self.METABOLISM_MAX+1, size=self.NUM_PEOPLE)
@@ -135,7 +135,7 @@ class World(object):
         this procedure recomputes the value of gini-index-reserve
         and the points in lorenz-points for the Lorenz and Gini-Index plots
     '''
-    def __update_lorenz_and_gini(self):
+    def _update_lorenz_and_gini(self):
         # sort wealth
         sorted_wealth = sorted(self.peoples.items(), key= lambda x:x[1].wealth)
         total_wealth = 0.0
@@ -157,7 +157,7 @@ class World(object):
         patch procedure, if a patch does not have it's maximum amount of grain, add
         num-grain-grown to its grain amount
     '''
-    def __grain_grow(self):
+    def _grain_grow(self):
         if self.clock % self.GRAIN_GROWTH_INTERVAL == 0:
             self.grains_distribution += self.NUM_GRAIN_GROWN
             self.grains_distribution = np.minimum(self.grains_distribution, self.maximum_grains)
@@ -168,7 +168,7 @@ class World(object):
         If between one and two thirds, group it the middle.  
         If over two thirds, group it the rich.
     '''
-    def __group_people(self, max_wealth):
+    def _group_people(self, max_wealth):
         r, m, p = 0, 0, 0
         for people in self.peoples.values():
             if people.wealth <= max_wealth / 3.0:
@@ -182,7 +182,7 @@ class World(object):
     '''
         The procedure will happen in one clock
     '''
-    def step(self):
+    def _step(self):
         people_here = {}
         max_wealth = 0
         # each people decide direction
@@ -195,15 +195,17 @@ class World(object):
         for people in self.peoples.values():
             # harvest
             harvest = float(self.grains_distribution[people.axis_x, people.axis_y])\
-                 / people_here[(people.axis_x, people.axis_y)]
+                / people_here[(people.axis_x, people.axis_y)] 
+            people.wealth += harvest
+
             # now that the grain has been harvested, have the turtles make the
             # patches which they are on have no grain
             self.grains_distribution[people.axis_x, people.axis_y] -= harvest
             people.move_eat_age_die()
             max_wealth = max(people.wealth, max_wealth)
 
-        self.__grain_grow()
-        return self.__group_people(max_wealth)
+        self._grain_grow()
+        return self._group_people(max_wealth)
         
     def simulate(self):
         lorenz_results = {}
@@ -211,12 +213,12 @@ class World(object):
 
         while self.clock <= self.MAXIMUM_CLOCK:
             # exectue one step, record the num of rich, middle and poor
-            r, m, p = self.step()
+            r, m, p = self._step()
             rich.append(r)
             middle.append(m)
             poor.append(p)
             # records lorenz & gini index
-            lorenz_points, gini_index = self.__update_lorenz_and_gini()
+            lorenz_points, gini_index = self._update_lorenz_and_gini()
             lorenz_results[self.clock] = lorenz_points
             gini_results.append(gini_index)
 

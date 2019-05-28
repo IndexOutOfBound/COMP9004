@@ -57,7 +57,7 @@ def simulator(argv):
                     setting['RECLAMATION_INTERVAL'] = z
                     conf['MAXIMUM_CLOCK'] = 500
                     world = World(conf)
-                    extensionWorld = WorldExtension(world, conf)
+                    extensionWorld = WorldExtension(conf)
                     total_lorenz, total_gini, total_rich, total_middle, total_poor = extensionWorld.simulate()
                     for i in range(0, 99):
                         world = World(conf)

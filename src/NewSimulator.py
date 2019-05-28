@@ -11,25 +11,26 @@ import configparser
 
 from WorldExtension import WorldExtension
 
+BASE_PATH = os.getcwd()
 
 def load_config(id=None):
     cf = configparser.ConfigParser()
     if id is None:
-        cf.read("./default.conf")
+        cf.read(f"{BASE_PATH}/src/default.conf")
     else:
-        cf.read(f"../data/{id}/config.conf")
+        cf.read(f"{BASE_PATH}/data/{id}/config.conf")
     return cf
 
 
 def load_netlogo_data(id):
     # load gini index
     gini, poor, middle, rich = [], [], [], []
-    with open(f"../data/{id}/gini_index.csv") as f:
+    with open(f"{BASE_PATH}/data/{id}/gini_index.csv") as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
             gini.append(float(row[1]))
     # load number of each groups 
-    with open(f"../data/{id}/people_num.csv") as f:
+    with open(f"{BASE_PATH}/data/{id}/people_num.csv") as f:
         csv_reader = csv.reader(f)
         for row in csv_reader:
             poor.append(int(row[1]))
@@ -86,11 +87,11 @@ def simulator(argv):
 
     # Initial world
     if compare_netlog or compare_extend_world:
-        conf['MAXIMUM_CLOCK'] = str(2000)
+        conf['MAXIMUM_CLOCK'] = str(500)
 
     world = World(conf)
 
-    extensionWorld = WorldExtension(world, conf)
+    extensionWorld = WorldExtension(conf)
     # start simulation
     lorenz_result, gini_results, rich, middle, poor = world.simulate()
 
@@ -148,24 +149,24 @@ def store_data(lorenz_result, gini_results, rich, middle, poor, lorenz_path, res
 
 def generate_graph_without_compare(conf, simulate_result):
     # generate graph
-        print('Saving Graph')
-        axis_x = np.arange(int(conf['MAXIMUM_CLOCK'])+1)
-        # generate Gini Index graph
-        plt.plot(axis_x, simulate_result['gini'])
-        plt.ylim(0, 1)
-        plt.xlabel('Time')
-        plt.ylabel('Gini Index')
-        plt.savefig('./graph/gini_index.png')
-        plt.cla()
+    print('Saving Graph')
+    axis_x = np.arange(int(conf['MAXIMUM_CLOCK'])+1)
+    # generate Gini Index graph
+    plt.plot(axis_x, simulate_result['gini'])
+    plt.ylim(0, 1)
+    plt.xlabel('Time')
+    plt.ylabel('Gini Index')
+    plt.savefig(f'{BASE_PATH}/src/graph/gini_index.png')
+    plt.cla()
 
-        # generate people group graph
-        plt.plot(axis_x, simulate_result['rich'], color='b')
-        plt.plot(axis_x, simulate_result['middle'], color='y')
-        plt.plot(axis_x, simulate_result['poor'], color='r')
-        plt.xlabel('Time')
-        plt.ylabel('Gini Index')
-        plt.savefig('./graph/class_plot.png')
-        plt.cla()
+    # generate people group graph
+    plt.plot(axis_x, simulate_result['rich'], color='b')
+    plt.plot(axis_x, simulate_result['middle'], color='y')
+    plt.plot(axis_x, simulate_result['poor'], color='r')
+    plt.xlabel('Time')
+    plt.ylabel('Gini Index')
+    plt.savefig(f'{BASE_PATH}/src/graph/class_plot.png')
+    plt.cla()
 
 
 def generate_graph(conf, simulate_result, original_result ):
@@ -178,7 +179,7 @@ def generate_graph(conf, simulate_result, original_result ):
     plt.ylim(0, 1)
     plt.xlabel('Time')
     plt.ylabel('Gini Index')
-    plt.savefig('./graph/gini_index.png')
+    plt.savefig(f'{BASE_PATH}/src/graph/gini_index.png')
     plt.cla()
 
     # generate people group graph
@@ -190,7 +191,7 @@ def generate_graph(conf, simulate_result, original_result ):
     plt.plot(axis_x, original_result['poor'], 'r:')
     plt.xlabel('Time')
     plt.ylabel('People')
-    plt.savefig('./graph/class_plot.png')
+    plt.savefig(f'{BASE_PATH}/src/graph/class_plot.png')
     plt.cla()
 
         # # generate Lorenz curve graph
